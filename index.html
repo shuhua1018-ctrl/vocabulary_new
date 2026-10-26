@@ -1,1454 +1,762 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>單字學習卡</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .perspective-1000 {
-            perspective: 1000px;
-        }
-        .transform-style-3d {
-            transform-style: preserve-3d;
-        }
-        .backface-hidden {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-            transform: rotateY(180deg);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第二次段考 英文單字複習卡</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .perspective-1000 { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col font-sans">
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col font-sans select-none">
 
-    <!-- 頂部控制區 -->
-    <header class="bg-white border-b border-slate-200 shadow-sm py-3.5 px-6">
-        <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-                <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="layers" class="w-6 h-6 text-indigo-600"></i>
-                    <span>單字學習卡</span>
-                </h1>
+  <!-- 頂部導覽列 -->
+  <header class="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="book-open-check" class="w-6 h-6 text-indigo-600"></i>
+        <h1 class="text-lg font-bold text-slate-800">第二次段考 單字複習</h1>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <!-- 範圍選擇按鈕 -->
+        <button id="btnOpenScopeModal" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition shadow-sm border border-indigo-200">
+          <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+          <span id="scopeButtonText">選擇複習範圍</span>
+        </button>
+        <!-- 說明 (Info) -->
+        <button id="btnInfoModal" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition" title="操作說明">
+          <i data-lucide="info" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
 
-                <!-- 目前選取的學習範圍標籤 -->
-                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-200/80 rounded-xl text-xs font-semibold text-indigo-700">
-                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-                    <span id="currentSelectionLabel">全部單元</span>
-                </div>
-            </div>
+  <!-- 主學習區塊 -->
+  <main class="flex-1 flex flex-col items-center justify-center p-4 max-w-xl mx-auto w-full">
 
-            <div class="flex items-center gap-2">
-                <!-- 選擇單元與單字按鈕 (做法四) -->
-                <button id="openPickerBtn" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition shadow-sm active:scale-95">
-                    <i data-lucide="list-checks" class="w-4 h-4"></i>
-                    <span>選擇複習單元與單字</span>
-                </button>
+    <!-- 頂部一體化資訊欄 (進度條 + 數量 + SRS 統計) -->
+    <div class="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-2.5 mb-4 flex items-center gap-3 text-xs font-semibold">
+      <span id="counter" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md shrink-0 border border-slate-200">
+        0 / 0
+      </span>
+      
+      <div class="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
+        <div id="progressBar" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+      </div>
 
-                <!-- 說明 Info 按鈕 -->
-                <button id="infoBtn" type="button" class="inline-flex items-center justify-center p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition" title="快捷鍵與功能說明">
-                    <i data-lucide="info" class="w-5 h-5 text-slate-600"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- 主介面區塊 -->
-    <main class="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 max-w-3xl w-full mx-auto">
-
-        <!-- 載入中狀態提示 -->
-        <div id="loadingStatus" class="w-full text-center py-12 flex flex-col items-center justify-center gap-3">
-            <div class="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-            <p id="loadingMsg" class="text-sm font-medium text-slate-500">正在讀取單元詞庫 (unit8.csv ~ unit13.csv)...</p>
-        </div>
-
-        <!-- 複習進行中容器 -->
-        <div id="studyContainer" class="w-full flex-col items-center hidden">
-    <main class="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 max-w-3xl w-full mx-auto">
-
-        <!-- 複習進行中容器 -->
-        <div id="studyContainer" class="w-full flex flex-col items-center">
-            
-            <!-- 頂部資訊欄一體化：剩餘卡片「X / Y」、進度條、複習統計數據整合在同一個水平線上 -->
-            <div class="w-full mb-5 flex items-center gap-3 bg-white p-2.5 sm:p-3 rounded-2xl border border-slate-200 shadow-xs">
-                <!-- 剩餘卡片數量 X / Y (移除中文描述) -->
-                <div class="shrink-0 font-bold text-sm text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg">
-                    <span id="progressText">0 / 0</span>
-                </div>
-
-                <!-- 整合在中間的學習進度條 -->
-                <div class="flex-1 bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200/60">
-                    <div id="progressBar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%;"></div>
-                </div>
-
-                <!-- 複習統計數據 (Again, Hard, Good, Easy) -->
-                <div class="flex items-center gap-1.5 shrink-0 text-xs font-semibold">
-                    <span class="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/60">Again: <span id="countAgain">0</span></span>
-                    <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/60">Hard: <span id="countHard">0</span></span>
-                    <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/60">Good: <span id="countGood">0</span></span>
-                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60">Easy: <span id="countEasy">0</span></span>
-                </div>
-            </div>
-
-            <!-- 3D 翻轉卡片容器 -->
-            <div class="w-full h-[390px] sm:h-[410px] perspective-1000 mb-6">
-                <div id="flashcard" class="relative w-full h-full duration-500 transform-style-3d cursor-pointer select-none">
-                    
-                    <!-- 卡片正面 -->
-                    <div class="absolute inset-0 w-full h-full bg-white rounded-2xl shadow-md border border-slate-200 backface-hidden flex flex-col justify-between p-8">
-                        <div class="flex justify-between items-center text-xs font-semibold text-slate-400 tracking-wider">
-                            <span>FRONT</span>
-                            <span>點擊卡片翻面</span>
-                        </div>
-
-                        <!-- 正面中央單字與喇叭 -->
-                        <div class="flex items-center justify-center gap-4 my-auto">
-                            <span id="frontWord" class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight text-center break-words">Word</span>
-                            <button id="frontAudioBtn" type="button" class="p-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-full transition shadow-sm flex items-center justify-center" title="朗讀單字 (Enter)">
-                                <i data-lucide="volume-2" class="w-7 h-7"></i>
-                            </button>
-                        </div>
-
-                        <div class="text-center text-xs text-slate-400">
-                            正面自動朗讀單字
-                        </div>
-                    </div>
-
-                    <!-- 卡片背面 -->
-                    <div class="absolute inset-0 w-full h-full bg-white rounded-2xl shadow-md border border-slate-200 backface-hidden rotate-y-180 flex flex-col justify-between p-5 sm:p-6 overflow-hidden">
-                        <div class="flex justify-between items-center text-xs font-semibold text-slate-400 tracking-wider mb-2">
-                            <span>BACK</span>
-                            <span>點擊卡片翻面</span>
-                        </div>
-
-                        <!-- 背面圖片展示區域 (支援快速載入與預加載) -->
-                        <div class="w-full h-28 sm:h-32 mb-2 rounded-xl overflow-hidden bg-slate-100 relative shrink-0 border border-slate-100 flex items-center justify-center">
-                            <div id="cardImageSkeleton" class="absolute inset-0 bg-slate-200 animate-pulse flex items-center justify-center text-slate-400">
-                                <i data-lucide="image" class="w-6 h-6 opacity-40"></i>
-                            </div>
-                            <img id="backImage" src="" alt="Vocabulary Illustration" class="w-full h-full object-cover relative z-10 transition-opacity duration-300 opacity-0" onload="onImageLoaded()" onerror="onImageError(this)">
-                        </div>
-
-                        <!-- 背面緊湊排版內容 -->
-                        <div class="flex-1 flex flex-col justify-center space-y-1.5 text-left overflow-hidden">
-                            <!-- 詞性與中文翻譯合一行或緊湊排列 -->
-                            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                <div id="posRow" class="flex items-center gap-1.5">
-                                    <span class="text-[11px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded shrink-0">詞性</span>
-                                    <span id="backPos" class="text-xs font-semibold text-slate-700">-</span>
-                                </div>
-                                <div id="transRow" class="flex items-center gap-1.5">
-                                    <span class="text-[11px] font-bold px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded shrink-0">中文</span>
-                                    <span id="backTrans" class="text-sm font-bold text-slate-900">-</span>
-                                </div>
-                            </div>
-
-                            <!-- 詞性變化 -->
-                            <div id="formsRow" class="flex items-start gap-1.5">
-                                <span class="text-[11px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded shrink-0 mt-0.5">變化</span>
-                                <span id="backForms" class="text-xs text-slate-700 leading-snug line-clamp-2">-</span>
-                            </div>
-
-                            <!-- 搭配詞 -->
-                            <div id="collocRow" class="flex items-start gap-1.5">
-                                <span class="text-[11px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded shrink-0 mt-0.5">搭配</span>
-                                <span id="backColloc" class="text-xs text-slate-700 leading-snug line-clamp-2">-</span>
-                            </div>
-
-                            <!-- 例句緊密區塊 -->
-                            <div id="sentenceRow" class="pt-1">
-                                <div class="flex items-start justify-between gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <div class="flex-1">
-                                        <div id="backSentence" class="text-xs text-slate-800 leading-snug font-serif line-clamp-3">Example sentence goes here.</div>
-                                    </div>
-                                    <button id="backAudioBtn" type="button" class="p-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-full transition shrink-0" title="朗讀例句 (Enter)">
-                                        <i data-lucide="volume-2" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- 卡片背面下方 SRS 四按鈕：極簡化，只保留英文單字 -->
-            <div id="srsButtonRow" class="w-full flex items-center justify-center gap-3 transition-opacity duration-300 invisible opacity-0">
-                <button id="btnAgain" type="button" class="flex-1 max-w-[130px] py-3 bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-700 font-bold rounded-xl border border-rose-200 shadow-sm transition flex items-center justify-center text-sm sm:text-base tracking-wide">
-                    Again
-                </button>
-                <button id="btnHard" type="button" class="flex-1 max-w-[130px] py-3 bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-700 font-bold rounded-xl border border-amber-200 shadow-sm transition flex items-center justify-center text-sm sm:text-base tracking-wide">
-                    Hard
-                </button>
-                <button id="btnGood" type="button" class="flex-1 max-w-[130px] py-3 bg-blue-50 hover:bg-blue-100 active:scale-95 text-blue-700 font-bold rounded-xl border border-blue-200 shadow-sm transition flex items-center justify-center text-sm sm:text-base tracking-wide">
-                    Good
-                </button>
-                <button id="btnEasy" type="button" class="flex-1 max-w-[130px] py-3 bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 font-bold rounded-xl border border-emerald-200 shadow-sm transition flex items-center justify-center text-sm sm:text-base tracking-wide">
-                    Easy
-                </button>
-            </div>
-        </div>
-
-        <!-- 完成結算畫面 -->
-        <div id="completionScreen" class="hidden w-full bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-sm flex flex-col items-center text-center">
-            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4">
-                <i data-lucide="check-circle" class="w-10 h-10"></i>
-            </div>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2">完成練習！</h2>
-            <p id="completionUnitText" class="text-slate-500 mb-8 text-sm">所選單字皆已達成記憶目標，點擊下方按鈕可重新開始複習。</p>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-lg mb-8">
-                <div class="bg-rose-50 border border-rose-100 rounded-2xl p-4">
-                    <div class="text-xs font-medium text-rose-600 mb-1">Again</div>
-                    <div id="summaryAgain" class="text-2xl font-bold text-rose-700">0</div>
-                </div>
-                <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
-                    <div class="text-xs font-medium text-amber-600 mb-1">Hard</div>
-                    <div id="summaryHard" class="text-2xl font-bold text-amber-700">0</div>
-                </div>
-                <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4">
-                    <div class="text-xs font-medium text-blue-600 mb-1">Good</div>
-                    <div id="summaryGood" class="text-2xl font-bold text-blue-700">0</div>
-                </div>
-                <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
-                    <div class="text-xs font-medium text-emerald-600 mb-1">Easy</div>
-                    <div id="summaryEasy" class="text-2xl font-bold text-emerald-700">0</div>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <button id="restartBtn" type="button" class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-medium rounded-xl shadow-sm transition">
-                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
-                    <span>重新開始所選單字</span>
-                </button>
-                <button id="reopenPickerBtn" type="button" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-medium rounded-xl transition">
-                    <i data-lucide="list-checks" class="w-5 h-5"></i>
-                    <span>重新挑選單元</span>
-                </button>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- 單元與單字挑選 Modal (做法四) -->
-    <div id="pickerModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[85vh] border border-slate-100 overflow-hidden">
-            <!-- Modal 頂部 -->
-            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i data-lucide="list-checks" class="w-5 h-5 text-indigo-600"></i>
-                        <span>挑選複習單元與單字</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-0.5">點擊單元可快速切換全選，亦可自由勾選特定單字</p>
-                </div>
-                <button id="closePickerBtn" type="button" class="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <!-- 快捷全選操作列 -->
-            <div class="px-5 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-2 text-xs">
-                <div class="flex items-center gap-2">
-                    <button id="selectAllUnitsBtn" type="button" class="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 font-semibold rounded-lg transition text-slate-700">全選全部</button>
-                    <button id="deselectAllBtn" type="button" class="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 font-semibold rounded-lg transition text-slate-700">清空選取</button>
-                </div>
-                <div class="text-slate-500 font-medium">
-                    已勾選：<span id="selectedCountBadge" class="font-bold text-indigo-600">0</span> 個單字
-                </div>
-            </div>
-
-            <!-- 單元與單字列表（可垂直捲動） -->
-            <div id="unitListContainer" class="flex-1 overflow-y-auto p-5 space-y-4">
-                <!-- 單元卡片由 JS 動態產生 -->
-            </div>
-
-            <!-- Modal 底部確認按鈕 -->
-            <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                <div class="text-xs text-slate-500">
-                    勾選完成後將自動建立專屬 SRS 複習佇列
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="cancelPickerBtn" type="button" class="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-sm font-medium rounded-xl transition">
-                        取消
-                    </button>
-                    <button id="startStudySelectedBtn" type="button" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5">
-                        <i data-lucide="play" class="w-4 h-4 fill-current"></i>
-                        <span>開始複習所選</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+      <div class="flex items-center gap-1.5 shrink-0 text-[11px]">
+        <span class="px-2 py-0.5 rounded bg-red-50 text-red-600 border border-red-200" id="statAgain">Again 0</span>
+        <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200" id="statHard">Hard 0</span>
+        <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-200" id="statGood">Good 0</span>
+        <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200" id="statEasy">Easy 0</span>
+      </div>
     </div>
 
-    <!-- 快捷鍵與功能說明彈窗 Modal -->
-    <div id="infoModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 relative border border-slate-100">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="help-circle" class="w-5 h-5 text-indigo-600"></i>
-                    操作說明與快捷鍵
-                </h3>
-                <button id="closeInfoBtn" type="button" class="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <div class="space-y-4 text-sm text-slate-600">
-                <!-- 鍵盤快捷鍵清單 -->
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center gap-1.5">
-                        <i data-lucide="keyboard" class="w-4 h-4 text-indigo-500"></i>
-                        鍵盤快捷鍵
-                    </h4>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span>卡片翻面</span>
-                            <kbd class="px-2 py-0.5 bg-white border border-slate-200 rounded shadow-xs font-mono font-bold text-slate-700">Space</kbd>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span>朗讀單字 / 例句</span>
-                            <kbd class="px-2 py-0.5 bg-white border border-slate-200 rounded shadow-xs font-mono font-bold text-slate-700">Enter</kbd>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span>Again (重來)</span>
-                            <kbd class="px-2 py-0.5 bg-white border border-slate-200 rounded shadow-xs font-mono font-bold text-slate-700">1</kbd>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span>Hard (困難)</span>
-                            <kbd class="px-2 py-0.5 bg-white border border-slate-200 rounded shadow-xs font-mono font-bold text-slate-700">2</kbd>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span>Good (良好)</span>
-                            <kbd class="px-2 py-0.5 bg-white border border-slate-200 rounded shadow-xs font-mono font-bold text-slate-700">3</kbd>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span>Easy (簡單)</span>
-                            <kbd class="px-2 py-0.5 bg-white border border-slate-200 rounded shadow-xs font-mono font-bold text-slate-700">4</kbd>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SRS 4種分類鍵說明 -->
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center gap-1.5">
-                        <i data-lucide="sliders" class="w-4 h-4 text-indigo-500"></i>
-                        SRS 四種分類功能說明
-                    </h4>
-                    <ul class="space-y-1.5 text-xs text-slate-600">
-                        <li class="flex items-start gap-1.5">
-                            <span class="font-bold text-rose-600 shrink-0">Again:</span>
-                            <span>將卡片排至第 2 個位置，短時間內立刻重新複習。</span>
-                        </li>
-                        <li class="flex items-start gap-1.5">
-                            <span class="font-bold text-amber-600 shrink-0">Hard:</span>
-                            <span>將卡片插入至剩餘卡片隊列的中間位置。</span>
-                        </li>
-                        <li class="flex items-start gap-1.5">
-                            <span class="font-bold text-blue-600 shrink-0">Good:</span>
-                            <span>將卡片移動至佇列的最末端進行循環複習。</span>
-                        </li>
-                        <li class="flex items-start gap-1.5">
-                            <span class="font-bold text-emerald-600 shrink-0">Easy:</span>
-                            <span>已熟練掌握，從本次練習佇列中直接移除。</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="mt-5 text-right">
-                <button id="confirmInfoBtn" type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition shadow-sm">
-                    我知道了
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // 初始化 Lucide 圖示
-        lucide.createIcons();
-
-        // 支援的檔案清單：優先嘗試讀取獨立的 6 個單元檔案，若不存在則備用單一 vocab.csv
-        const UNIT_FILES = [
-            { unit: "Unit 8", file: "unit8.csv" },
-            { unit: "Unit 9", file: "unit9.csv" },
-            { unit: "Unit 10", file: "unit10.csv" },
-            { unit: "Unit 11", file: "unit11.csv" },
-            { unit: "Unit 12", file: "unit12.csv" },
-            { unit: "Unit 13", file: "unit13.csv" }
-        ];
-        const FALLBACK_SINGLE_CSV = 'vocab.csv';
-
-        // 總單字庫 (按 Unit 分類：{ "Unit 8": [...], "Unit 9": [...] })
-        let categorizedVocab = {};
+    <!-- 3D 翻轉字卡本體 -->
+    <div class="relative w-full h-[450px] perspective-1000">
+      <div id="flashcard" class="w-full h-full relative transform-style-3d transition-transform duration-500 cursor-pointer shadow-md rounded-2xl bg-white border border-slate-200">
         
-        // 使用者目前勾選選中的單字集合
-        let selectedCards = [];
-        let currentLabel = '全部單元';
+        <!-- 卡片正面 (Front) -->
+        <div class="absolute inset-0 backface-hidden flex flex-col justify-between p-6 bg-white rounded-2xl">
+          <div class="flex justify-between items-center text-xs">
+            <span id="cardSourceTag" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-semibold rounded-full border border-indigo-100">課本</span>
+            <span class="text-slate-400">點擊卡片或按 Space 翻面</span>
+          </div>
 
-        // 本地儲存 Key
-        const STORAGE_KEY = 'flashcard_app_selected_progress_v3';
+          <div class="flex flex-col items-center justify-center my-auto">
+            <div class="flex items-center justify-center gap-3">
+              <h2 id="cardWord" class="text-4xl sm:text-5xl font-black text-slate-800 tracking-tight">word</h2>
+              <button id="btnPronounceFront" class="p-2.5 rounded-full text-indigo-600 hover:bg-indigo-50 transition" title="朗讀英文 (Enter)">
+                <i data-lucide="volume-2" class="w-7 h-7"></i>
+              </button>
+            </div>
+          </div>
 
-        // SRS 動態複習佇列
-        let queue = [];
-        let totalOriginalCount = 0;
-        let isFlipped = false;
-        let preferredVoice = null;
+          <div class="text-center text-xs text-slate-400">
+            按 Enter 或喇叭圖示可朗讀單字
+          </div>
+        </div>
 
-        // 統計計數器
-        let srsStats = {
-            Again: 0,
-            Hard: 0,
-            Good: 0,
-            Easy: 0
-        };
+        <!-- 卡片背面 (Back) -->
+        <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col p-5 bg-white rounded-2xl overflow-hidden justify-between">
+          <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 語意視覺圖 -->
+            <div class="w-full h-28 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative mb-3 border border-slate-100">
+              <img id="cardImage" src="" alt="Vocabulary Image" class="w-full h-full object-cover">
+            </div>
 
-        // DOM 元素
-        const loadingStatus = document.getElementById('loadingStatus');
-        const studyContainer = document.getElementById('studyContainer');
-        const completionScreen = document.getElementById('completionScreen');
-        const srsButtonRow = document.getElementById('srsButtonRow');
-        const currentSelectionLabel = document.getElementById('currentSelectionLabel');
-        const completionUnitText = document.getElementById('completionUnitText');
+            <!-- 單字解析內容 -->
+            <div class="space-y-1.5 text-left text-sm flex-1 overflow-y-auto pr-1">
+              <div class="flex items-baseline gap-2">
+                <span id="cardPos" class="font-bold text-indigo-600 italic"></span>
+                <span id="cardMeaning" class="font-semibold text-slate-800 text-base"></span>
+              </div>
 
-        const openPickerBtn = document.getElementById('openPickerBtn');
-        const reopenPickerBtn = document.getElementById('reopenPickerBtn');
-        const pickerModal = document.getElementById('pickerModal');
-        const closePickerBtn = document.getElementById('closePickerBtn');
-        const cancelPickerBtn = document.getElementById('cancelPickerBtn');
-        const startStudySelectedBtn = document.getElementById('startStudySelectedBtn');
-        const selectAllUnitsBtn = document.getElementById('selectAllUnitsBtn');
-        const deselectAllBtn = document.getElementById('deselectAllBtn');
-        const selectedCountBadge = document.getElementById('selectedCountBadge');
-        const unitListContainer = document.getElementById('unitListContainer');
+              <div id="boxForms" class="text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100 hidden">
+                <span class="font-bold text-slate-700">【詞性變化】</span>
+                <span id="cardForms"></span>
+              </div>
 
-        const restartBtn = document.getElementById('restartBtn');
-        const infoBtn = document.getElementById('infoBtn');
-        const infoModal = document.getElementById('infoModal');
-        const closeInfoBtn = document.getElementById('closeInfoBtn');
-        const confirmInfoBtn = document.getElementById('confirmInfoBtn');
+              <div id="boxCollocation" class="text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100 hidden">
+                <span class="font-bold text-slate-700">【搭配詞】</span>
+                <span id="cardCollocation"></span>
+              </div>
 
-        const flashcard = document.getElementById('flashcard');
-        const frontWord = document.getElementById('frontWord');
-        const frontAudioBtn = document.getElementById('frontAudioBtn');
-        const backAudioBtn = document.getElementById('backAudioBtn');
-        const progressText = document.getElementById('progressText');
-        const progressBar = document.getElementById('progressBar');
+              <div id="boxSentence" class="bg-indigo-50/60 p-2 rounded-lg border border-indigo-100 flex items-start justify-between gap-2">
+                <div class="text-xs space-y-0.5">
+                  <div class="font-bold text-indigo-950 flex items-center gap-1">
+                    <span>【例句】</span>
+                  </div>
+                  <p id="cardSentenceEn" class="text-slate-800 font-medium"></p>
+                  <p id="cardSentenceZh" class="text-slate-500"></p>
+                </div>
+                <button id="btnPronounceBack" class="p-1.5 text-indigo-600 hover:bg-white rounded-md shrink-0 transition" title="朗讀例句 (Enter)">
+                  <i data-lucide="volume-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
 
-        const btnAgain = document.getElementById('btnAgain');
-        const btnHard = document.getElementById('btnHard');
-        const btnGood = document.getElementById('btnGood');
-        const btnEasy = document.getElementById('btnEasy');
+          <div class="pt-2 text-center text-[11px] text-slate-400">
+            點擊卡片翻回正面
+          </div>
+        </div>
 
-        const countAgain = document.getElementById('countAgain');
-        const countHard = document.getElementById('countHard');
-        const countGood = document.getElementById('countGood');
-        const countEasy = document.getElementById('countEasy');
+      </div>
+    </div>
 
-        const backImage = document.getElementById('backImage');
-        const cardImageSkeleton = document.getElementById('cardImageSkeleton');
+    <!-- 底部 SRS 四分類按鈕 -->
+    <div class="w-full grid grid-cols-4 gap-2.5 mt-4">
+      <button onclick="handleSRS('Again')" class="py-2.5 rounded-xl font-bold text-sm bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition shadow-sm active:scale-95">
+        Again
+      </button>
+      <button onclick="handleSRS('Hard')" class="py-2.5 rounded-xl font-bold text-sm bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 transition shadow-sm active:scale-95">
+        Hard
+      </button>
+      <button onclick="handleSRS('Good')" class="py-2.5 rounded-xl font-bold text-sm bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition shadow-sm active:scale-95">
+        Good
+      </button>
+      <button onclick="handleSRS('Easy')" class="py-2.5 rounded-xl font-bold text-sm bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 transition shadow-sm active:scale-95">
+        Easy
+      </button>
+    </div>
+  </main>
 
-        const summaryAgain = document.getElementById('summaryAgain');
-        const summaryHard = document.getElementById('summaryHard');
-        const summaryGood = document.getElementById('summaryGood');
-        const summaryEasy = document.getElementById('summaryEasy');
+  <!-- 範圍選取面板 (Scope Selection Modal) -->
+  <div id="scopeModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h3 class="text-base font-bold text-slate-800">選擇第二次段考複習範圍</h3>
+          <p class="text-xs text-slate-500 mt-0.5">可跨來源多重選取想要複習的課次或單元</p>
+        </div>
+        <button id="btnCloseScopeModal" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
 
-        const posRow = document.getElementById('posRow');
-        const transRow = document.getElementById('transRow');
-        const formsRow = document.getElementById('formsRow');
-        const collocRow = document.getElementById('collocRow');
-        const sentenceRow = document.getElementById('sentenceRow');
+      <!-- 第一層：來源切換標籤 (Tab) -->
+      <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl mt-4 shrink-0">
+        <button onclick="switchSourceTab('all')" id="tabAll" class="flex-1 py-1.5 text-xs font-bold rounded-lg transition bg-white text-indigo-700 shadow-sm">
+          全部範圍
+        </button>
+        <button onclick="switchSourceTab('textbook')" id="tabTextbook" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition">
+          課本 (Textbook)
+        </button>
+        <button onclick="switchSourceTab('magazine')" id="tabMagazine" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition">
+          雜誌 (Magazine)
+        </button>
+      </div>
 
-        const backPos = document.getElementById('backPos');
-        const backTrans = document.getElementById('backTrans');
-        const backForms = document.getElementById('backForms');
-        const backColloc = document.getElementById('backColloc');
-        const backSentence = document.getElementById('backSentence');
+      <!-- 快捷全選列 -->
+      <div class="flex items-center justify-between mt-3 px-1 text-xs text-slate-500">
+        <span id="selectedCountSummary">已勾選 0 個單元 (共 0 字)</span>
+        <div class="space-x-2">
+          <button onclick="toggleSelectAll(true)" class="text-indigo-600 font-semibold hover:underline">全選</button>
+          <button onclick="toggleSelectAll(false)" class="text-slate-400 hover:underline">清空</button>
+        </div>
+      </div>
 
-        const imageCache = new Map();
-        let currentImageWord = '';
+      <!-- 第二層：課次 / 單元清單 (多選卡片) -->
+      <div class="flex-1 overflow-y-auto mt-2 space-y-4 pr-1">
+        <!-- 課本分區 -->
+        <div id="sectionTextbook" class="space-y-2">
+          <div class="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+            <i data-lucide="book" class="w-3.5 h-3.5 text-indigo-600"></i>
+            <span>課本 (4 課：3 Lessons + 1 Review)</span>
+          </div>
+          <div id="listTextbookUnits" class="grid grid-cols-2 gap-2">
+            <!-- 動態生成課本單元 -->
+          </div>
+        </div>
 
-        // 備份範例資料（當使用者在本機檔案系統直接開啟遇到 CORS 或未放 vocab.csv 時觸發降級）
-        const fallbackDatabase = {
-            "Unit 8": [
-                {
-                    unit: "Unit 8",
-                    word: "arrive",
-                    pos: "v.",
-                    translation: "到達、抵達",
-                    forms: "arrival (n.) 到達、抵達",
-                    collocation: "arrive at the airport 到達機場\narrive in London 到達倫敦",
-                    sentence: "We arrived at the hotel very late at night.(我們在深夜很晚才到達飯店。)"
-                },
-                {
-                    unit: "Unit 8",
-                    word: "collaborate",
-                    pos: "v.",
-                    translation: "合作，協作",
-                    forms: "collaboration (n.) 合作",
-                    collocation: "collaborate with sb 與某人合作\ncollaborate on a project 合作專案",
-                    sentence: "Researchers from different universities collaborated on the scientific study."
-                }
-            ],
-            "Unit 9": [
-                {
-                    unit: "Unit 9",
-                    word: "negotiate",
-                    pos: "v.",
-                    translation: "協商、談判",
-                    forms: "negotiation (n.) 談判\nnegotiator (n.) 談判專家",
-                    collocation: "negotiate a contract 談判合約\nnegotiate with sb 與某人談判",
-                    sentence: "The union is currently negotiating a new wage contract with management."
-                },
-                {
-                    unit: "Unit 9",
-                    word: "implement",
-                    pos: "v.",
-                    translation: "實施、貫徹",
-                    forms: "implementation (n.) 實行",
-                    collocation: "implement a policy 實施政策\nimplement changes 落實變更",
-                    sentence: "The committee decided to implement the new safety standards immediately."
-                }
-            ],
-            "Unit 10": [
-                {
-                    unit: "Unit 10",
-                    word: "evaluate",
-                    pos: "v.",
-                    translation: "評估、評價",
-                    forms: "evaluation (n.) 評估",
-                    collocation: "evaluate performance 評估表現\nevaluate the risk 評估風險",
-                    sentence: "Managers meet annually to evaluate the performance of each employee."
-                }
-            ],
-            "Unit 11": [
-                {
-                    unit: "Unit 11",
-                    word: "distribute",
-                    pos: "v.",
-                    translation: "分發、分配",
-                    forms: "distribution (n.) 分配、經銷",
-                    collocation: "distribute goods 分發貨物",
-                    sentence: "The humanitarian group distributed emergency supplies to the flood victims."
-                }
-            ],
-            "Unit 12": [
-                {
-                    unit: "Unit 12",
-                    word: "sustain",
-                    pos: "v.",
-                    translation: "維持、支撐",
-                    forms: "sustainable (adj.) 永續的",
-                    collocation: "sustain economic growth 維持經濟增長",
-                    sentence: "The local ecosystem cannot sustain this rapid rate of urban development."
-                }
-            ],
-            "Unit 13": [
-                {
-                    unit: "Unit 13",
-                    word: "accommodate",
-                    pos: "v.",
-                    translation: "容納、提供住宿",
-                    forms: "accommodation (n.) 住宿",
-                    collocation: "accommodate requests 配合要求",
-                    sentence: "The luxury hotel can accommodate up to five hundred conference guests."
-                }
-            ]
-        };
+        <!-- 雜誌分區 -->
+        <div id="sectionMagazine" class="space-y-2">
+          <div class="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+            <i data-lucide="newspaper" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>雜誌 (單元 Units)</span>
+          </div>
+          <div id="listMagazineUnits" class="grid grid-cols-2 gap-2">
+            <!-- 動態生成雜誌單元 -->
+          </div>
+        </div>
+      </div>
 
-        // 自動載入外部 CSV：同時支援多檔 (unit8.csv ~ unit13.csv) 與 單一檔 (vocab.csv)
-        async function fetchExternalCSV() {
-            const parsedGrouped = {};
-            let loadedAny = false;
+      <!-- 底部確認按鈕 -->
+      <div class="pt-4 border-t border-slate-100 flex justify-end gap-2 shrink-0">
+        <button id="btnCancelScope" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl">取消</button>
+        <button id="btnApplyScope" class="px-5 py-2 text-xs font-bold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-md transition">
+          開始複習所選課次
+        </button>
+      </div>
+    </div>
+  </div>
 
-            // 1. 嘗試讀取多個獨立檔案
-            for (const item of UNIT_FILES) {
-                try {
-                    const res = await fetch(item.file, { cache: "no-cache" });
-                    if (res.ok) {
-                        const csvText = await res.text();
-                        const cards = parseSingleUnitCSV(csvText, item.unit);
-                        if (cards.length > 0) {
-                            parsedGrouped[item.unit] = cards;
-                            loadedAny = true;
-                        }
-                    }
-                } catch (e) {
-                    // 繼續嘗試其他檔案
-                }
+  <!-- 結算畫面 (練習完成) -->
+  <div id="completionModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="trophy" class="w-8 h-8"></i>
+      </div>
+      <h3 class="text-xl font-bold text-slate-800">本次練習已完成！</h3>
+      <p class="text-xs text-slate-500 mt-1">選定範圍內的所有單字皆已熟悉完畢。</p>
+
+      <div class="grid grid-cols-2 gap-2 my-5 text-left text-xs">
+        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">Again: <span id="summaryAgain" class="font-bold text-red-600">0</span> 次</div>
+        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">Hard: <span id="summaryHard" class="font-bold text-amber-600">0</span> 次</div>
+        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">Good: <span id="summaryGood" class="font-bold text-blue-600">0</span> 次</div>
+        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">Easy: <span id="summaryEasy" class="font-bold text-emerald-600">0</span> 次</div>
+      </div>
+
+      <div class="space-y-2">
+        <button onclick="restartSession()" class="w-full py-2.5 bg-indigo-600 text-white font-bold rounded-xl text-sm shadow hover:bg-indigo-700 transition">
+          再次複習此範圍
+        </button>
+        <button onclick="openScopeModal()" class="w-full py-2 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm hover:bg-slate-200 transition">
+          重選其他課次
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 說明 Info Modal -->
+  <div id="infoModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-bold text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="keyboard" class="w-5 h-5 text-indigo-600"></i> 操作與快捷鍵說明
+        </h3>
+        <button onclick="toggleModal('infoModal', false)" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="text-xs space-y-2.5 my-4 text-slate-600 leading-relaxed">
+        <p><strong>空白鍵 (Space)</strong>：翻轉卡片正面/背面。</p>
+        <p><strong>Enter 鍵</strong>：朗讀當前正面單字或背面例句。</p>
+        <p><strong>數字鍵 1 ~ 4</strong>：分別對應 Again、Hard、Good、Easy 分類按鈕。</p>
+        <hr class="border-slate-100 my-2">
+        <p class="font-semibold text-slate-700">SRS 間隔重複機制：</p>
+        <ul class="list-disc pl-4 space-y-1 text-[11px]">
+          <li><strong>Again</strong>：排入剩下單字的第 2 個位置（立刻再次複習）。</li>
+          <li><strong>Hard</strong>：排入剩下單字的中間位置。</li>
+          <li><strong>Good</strong>：排入隊列最末端。</li>
+          <li><strong>Easy</strong>：直接從本次練習中移除。</li>
+        </ul>
+      </div>
+      <button onclick="toggleModal('infoModal', false)" class="w-full py-2 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-200">
+        我知道了
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       1. 資料結構與預設範例庫 (第二次段考：課本 4 課 + 雜誌單元)
+       ========================================================= */
+    const defaultData = {
+      // 課本 (3 lessons + 1 review)
+      "Lesson 4": [
+        { word: "sustainable", type: "textbook", unit: "Lesson 4", pos: "adj.", meaning: "永續的；可持續的", forms: "sustainability (n.)", collocation: "sustainable development 永續發展", sentenceEn: "Solar energy is an efficient and sustainable source of power.", sentenceZh: "太陽能是一種高效率且永續的能源來源。" },
+        { word: "conserve", type: "textbook", unit: "Lesson 4", pos: "v.", meaning: "節約；保存", forms: "conservation (n.)", collocation: "conserve natural resources 節約自然資源", sentenceEn: "We must conserve fresh water during the severe summer drought.", sentenceZh: "我們必須在嚴峻的夏季乾旱期間節約淡水。" }
+      ],
+      "Lesson 5": [
+        { word: "collaborate", type: "textbook", unit: "Lesson 5", pos: "v.", meaning: "合作；協作", forms: "collaboration (n.)", collocation: "collaborate with partners 與夥伴合作", sentenceEn: "Engineers collaborated with designers to build the new app.", sentenceZh: "工程師與設計師攜手合作開發這款新應用程式。" }
+      ],
+      "Lesson 6": [
+        { word: "perspective", type: "textbook", unit: "Lesson 6", pos: "n.", meaning: "觀點；角度", forms: "", collocation: "from a broader perspective 從更廣的角度看", sentenceEn: "Traveling abroad offers a fresh perspective on international cultures.", sentenceZh: "出國旅行能為理解各國文化提供嶄新的視角。" }
+      ],
+      "Review 2": [
+        { word: "fundamental", type: "textbook", unit: "Review 2", pos: "adj.", meaning: "根本的；基礎的", forms: "fundamentally (adv.)", collocation: "fundamental rights 基本權利", sentenceEn: "Education plays a fundamental role in personal development.", sentenceZh: "教育在個人發展歷程中扮演了關鍵根本的角色。" }
+      ],
+      // 雜誌 (Unit 8 ~ 13)
+      "Unit 8": [
+        { word: "arrive", type: "magazine", unit: "Unit 8", pos: "v.", meaning: "到達、抵達", forms: "arrival (n.) 到達", collocation: "arrive at the airport 到達機場", sentenceEn: "We arrived at the hotel very late at night.", sentenceZh: "我們在深夜很晚才到達飯店。" },
+        { word: "depart", type: "magazine", unit: "Unit 8", pos: "v.", meaning: "起程；出發", forms: "departure (n.)", collocation: "depart for Tokyo 出發前往東京", sentenceEn: "The flight is scheduled to depart at dawn.", sentenceZh: "班機預定在黎明破曉時分起飛。" }
+      ],
+      "Unit 9": [
+        { word: "negotiate", type: "magazine", unit: "Unit 9", pos: "v.", meaning: "談判；協商", forms: "negotiation (n.)", collocation: "negotiate a contract 談判合約條款", sentenceEn: "The representatives negotiated terms for over three weeks.", sentenceZh: "雙方代表就合約條款進行了三個多星期的協商。" }
+      ],
+      "Unit 10": [
+        { word: "innovate", type: "magazine", unit: "Unit 10", pos: "v.", meaning: "創新；革新", forms: "innovation (n.)", collocation: "innovate new technologies 研發創新技術", sentenceEn: "Tech companies must constantly innovate to remain competitive.", sentenceZh: "科技公司必須不斷推陳出新才能維持市場競爭力。" }
+      ],
+      "Unit 11": [
+        { word: "resilient", type: "magazine", unit: "Unit 11", pos: "v.", meaning: "具韌性的；有適應力的", forms: "resilience (n.)", collocation: "resilient supply chain 具韌性的供應鏈", sentenceEn: "Local ecosystems proved surprisingly resilient after the flood.", sentenceZh: "當地的生態系統在洪災過後展現出驚人的復原韌性。" }
+      ],
+      "Unit 12": [
+        { word: "regulate", type: "magazine", unit: "Unit 12", pos: "v.", meaning: "管理；規範", forms: "regulation (n.)", collocation: "regulate markets 規範市場秩序", sentenceEn: "Strict laws are enacted to regulate digital privacy protection.", sentenceZh: "當局制定了嚴格的法規來規範數位個人隱私保護。" }
+      ],
+      "Unit 13": [
+        { word: "comprehend", type: "magazine", unit: "Unit 13", pos: "v.", meaning: "理解；領會", forms: "comprehension (n.)", collocation: "comprehend complex theories 深入理解複雜理論", sentenceEn: "Students strive to comprehend the core principles of quantum physics.", sentenceZh: "學生們努力理解量子物理的核心基礎原理。" }
+      ]
+    };
+
+    let allUnitsData = JSON.parse(JSON.stringify(defaultData));
+    let selectedUnitKeys = new Set(["Lesson 4", "Review 2", "Unit 8"]); // 預設勾選範圍
+    let queue = [];
+    let initialCount = 0;
+    let isFlipped = false;
+    let currentVoice = null;
+    let srsStats = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
+    let currentSourceTab = "all";
+
+    /* =========================================================
+       2. 外部 CSV 自動偵測載入 (課本 4 檔 + 雜誌 Unit 檔)
+       ========================================================= */
+    async function loadExternalCSVs() {
+      const filesToFetch = [
+        { name: "Lesson 4", type: "textbook", url: "lesson4.csv" },
+        { name: "Lesson 5", type: "textbook", url: "lesson5.csv" },
+        { name: "Lesson 6", type: "textbook", url: "lesson6.csv" },
+        { name: "Review 2", type: "textbook", url: "review2.csv" },
+        { name: "Unit 8", type: "magazine", url: "unit8.csv" },
+        { name: "Unit 9", type: "magazine", url: "unit9.csv" },
+        { name: "Unit 10", type: "magazine", url: "unit10.csv" },
+        { name: "Unit 11", type: "magazine", url: "unit11.csv" },
+        { name: "Unit 12", type: "magazine", url: "unit12.csv" },
+        { name: "Unit 13", type: "magazine", url: "unit13.csv" }
+      ];
+
+      for (const item of filesToFetch) {
+        try {
+          const res = await fetch(item.url);
+          if (res.ok) {
+            const csvText = await res.text();
+            const parsed = parseTwoColumnCSV(csvText, item.name, item.type);
+            if (parsed.length > 0) {
+              allUnitsData[item.name] = parsed;
             }
+          }
+        } catch (e) {
+          // 若為本地預覽或該檔不存在，維持使用 defaultData
+        }
+      }
+      renderScopeUnitList();
+      buildQueueFromSelection();
+    }
 
-            // 2. 若多檔案未找到，嘗試讀取單一 vocab.csv
-            if (!loadedAny) {
-                try {
-                    const res = await fetch(FALLBACK_SINGLE_CSV, { cache: "no-cache" });
-                    if (res.ok) {
-                        const csvText = await res.text();
-                        processCombinedCSVData(csvText, parsedGrouped);
-                        if (Object.keys(parsedGrouped).length > 0) {
-                            loadedAny = true;
-                        }
-                    }
-                } catch (e) {
-                    // 單一檔案亦讀取失敗
-                }
-            }
+    function parseTwoColumnCSV(csvText, unitName, type) {
+      const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== "");
+      const cards = [];
+      for (const line of lines) {
+        let parts = line.split(/,(.*)/s);
+        if (parts.length >= 2) {
+          const word = parts[0].replace(/^["']|["']$/g, '').trim();
+          const detail = parts[1].replace(/^["']|["']$/g, '').trim();
+          if (word && !word.toLowerCase().includes("word") && !word.toLowerCase().includes("單字")) {
+            cards.push(parseDetailToCard(word, detail, unitName, type));
+          }
+        }
+      }
+      return cards;
+    }
 
-            // 3. 若皆讀取失敗（如本地檔案 CORS 限制），載入備份資料
-            if (loadedAny && Object.keys(parsedGrouped).length > 0) {
-                categorizedVocab = parsedGrouped;
+    function parseDetailToCard(word, detail, unitName, type) {
+      const card = { word, type, unit: unitName, pos: "", meaning: "", forms: "", collocation: "", sentenceEn: "", sentenceZh: "" };
+      const lines = detail.split(/\n+/).map(l => l.trim()).filter(Boolean);
+      let currentSection = "meaning";
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.includes("【詞性變化】") || line.includes("[詞性變化]")) {
+          currentSection = "forms";
+          continue;
+        } else if (line.includes("【搭配詞】") || line.includes("[搭配詞]")) {
+          currentSection = "collocation";
+          continue;
+        } else if (line.includes("【例句】") || line.includes("[例句]")) {
+          currentSection = "sentence";
+          continue;
+        }
+
+        if (currentSection === "meaning") {
+          const m = line.match(/^(\([a-zA-Z\.\s]+\)|[a-zA-Z\.]+\.?)\s*(.*)$/);
+          if (m) {
+            card.pos = m[1];
+            card.meaning = m[2];
+          } else {
+            card.meaning = line;
+          }
+        } else if (currentSection === "forms") {
+          card.forms += (card.forms ? " ; " : "") + line;
+        } else if (currentSection === "collocation") {
+          card.collocation += (card.collocation ? " ; " : "") + line;
+        } else if (currentSection === "sentence") {
+          if (!card.sentenceEn) {
+            const zhMatch = line.match(/^([^\u4e00-\u9fa5]+)([\u4e00-\u9fa5（\(].*)?$/);
+            if (zhMatch) {
+              card.sentenceEn = zhMatch[1].trim();
+              card.sentenceZh = (zhMatch[2] || "").replace(/^[（\(]|[）\)]$/g, '').trim();
             } else {
-                console.warn("未偵測到 unit8~unit13.csv 或 vocab.csv，載入內建備份示範詞庫。");
-                categorizedVocab = fallbackDatabase;
+              card.sentenceEn = line;
             }
-
-            onDataReady();
+          } else if (!card.sentenceZh) {
+            card.sentenceZh = line.replace(/^[（\(]|[）\)]$/g, '').trim();
+          }
         }
+      }
+      return card;
+    }
 
-        // 解析兩欄式單元檔案 (第 1 欄單字，第 2 欄解析)
-        function parseSingleUnitCSV(text, defaultUnitName) {
-            const rows = parseCSV(text);
-            if (!rows || rows.length === 0) return [];
+    /* =========================================================
+       3. 範圍挑選面板邏輯 (來源切換 + 課次/單元多選)
+       ========================================================= */
+    function renderScopeUnitList() {
+      const textbookContainer = document.getElementById("listTextbookUnits");
+      const magazineContainer = document.getElementById("listMagazineUnits");
+      textbookContainer.innerHTML = "";
+      magazineContainer.innerHTML = "";
 
-            const cardList = [];
-            let startIndex = 0;
+      let totalSelectedWords = 0;
 
-            const headerCol0 = rows[0][0] ? rows[0][0].toLowerCase().trim() : '';
-            if (['word', '單字', 'voc', 'vocabulary', 'front', '正面'].includes(headerCol0)) {
-                startIndex = 1;
+      for (const [unitName, cards] of Object.entries(allUnitsData)) {
+        const isChecked = selectedUnitKeys.has(unitName);
+        if (isChecked) totalSelectedWords += cards.length;
+
+        const isTextbook = unitName.includes("Lesson") || unitName.includes("Review");
+        const targetContainer = isTextbook ? textbookContainer : magazineContainer;
+
+        const cardEl = document.createElement("div");
+        cardEl.className = `p-3 rounded-xl border transition cursor-pointer flex items-center justify-between ${
+          isChecked ? 'bg-indigo-50/70 border-indigo-300 ring-1 ring-indigo-200' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+        }`;
+        cardEl.onclick = () => toggleUnitSelection(unitName);
+
+        cardEl.innerHTML = `
+          <div class="flex items-center space-x-2.5">
+            <input type="checkbox" ${isChecked ? 'checked' : ''} class="w-4 h-4 rounded text-indigo-600 focus:ring-0 pointer-events-none">
+            <div>
+              <div class="text-xs font-bold text-slate-800">${unitName}</div>
+              <div class="text-[10px] text-slate-500">${cards.length} 個單字</div>
+            </div>
+          </div>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${isTextbook ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}">
+            ${isTextbook ? '課本' : '雜誌'}
+          </span>
+        `;
+        targetContainer.appendChild(cardEl);
+      }
+
+      document.getElementById("selectedCountSummary").innerText = 
+        `已勾選 ${selectedUnitKeys.size} 個單元 (共 ${totalSelectedWords} 字)`;
+      document.getElementById("scopeButtonText").innerText = 
+        selectedUnitKeys.size > 0 ? `已選 ${selectedUnitKeys.size} 個課次` : "請選擇課次";
+    }
+
+    function toggleUnitSelection(unitName) {
+      if (selectedUnitKeys.has(unitName)) {
+        selectedUnitKeys.delete(unitName);
+      } else {
+        selectedUnitKeys.add(unitName);
+      }
+      renderScopeUnitList();
+    }
+
+    function toggleSelectAll(selectAll) {
+      if (selectAll) {
+        for (const key of Object.keys(allUnitsData)) {
+          if (currentSourceTab === "all") {
+            selectedUnitKeys.add(key);
+          } else if (currentSourceTab === "textbook" && (key.includes("Lesson") || key.includes("Review"))) {
+            selectedUnitKeys.add(key);
+          } else if (currentSourceTab === "magazine" && key.includes("Unit")) {
+            selectedUnitKeys.add(key);
+          }
+        }
+      } else {
+        if (currentSourceTab === "all") {
+          selectedUnitKeys.clear();
+        } else {
+          for (const key of Object.keys(allUnitsData)) {
+            if (currentSourceTab === "textbook" && (key.includes("Lesson") || key.includes("Review"))) {
+              selectedUnitKeys.delete(key);
+            } else if (currentSourceTab === "magazine" && key.includes("Unit")) {
+              selectedUnitKeys.delete(key);
             }
-
-            for (let i = startIndex; i < rows.length; i++) {
-                const row = rows[i];
-                if (!row || row.length === 0) continue;
-
-                const word = (row[0] || '').trim();
-                const details = (row[1] || '').trim();
-                if (!word) continue;
-
-                const parsed = parseSecondColumn(details);
-                cardList.push({
-                    unit: defaultUnitName,
-                    word: word,
-                    pos: parsed.pos,
-                    translation: parsed.translation,
-                    forms: parsed.forms,
-                    collocation: parsed.collocation,
-                    sentence: parsed.sentence
-                });
-            }
-
-            return cardList;
+          }
         }
+      }
+      renderScopeUnitList();
+    }
 
-        // 解析單一合併型 CSV (支援 2 欄附帶 Unit 標題，或 3 欄格式)
-        function processCombinedCSVData(text, outputGrouped) {
-            const rows = parseCSV(text);
-            if (!rows || rows.length === 0) return;
-
-            let currentDetectedUnit = "Unit 8";
-            let startIndex = 0;
-
-            const headerCol0 = rows[0][0] ? rows[0][0].toLowerCase().trim() : '';
-            if (['word', '單字', 'voc', 'vocabulary', 'front', '正面', 'unit', '單元'].includes(headerCol0)) {
-                startIndex = 1;
-            }
-
-            for (let i = startIndex; i < rows.length; i++) {
-                const row = rows[i];
-                if (!row || row.length === 0) continue;
-
-                let col0 = (row[0] || '').trim();
-                let col1 = (row[1] || '').trim();
-                let col2 = (row[2] || '').trim();
-
-                const unitMatch = col0.match(/^(Unit\s*\d+|第\s*\d+\s*單元)/i);
-                if (unitMatch && !col1) {
-                    currentDetectedUnit = unitMatch[0].replace(/第\s*(\d+)\s*單元/, 'Unit $1');
-                    continue;
-                }
-
-                let cardUnit = currentDetectedUnit;
-                let word = col0;
-                let details = col1;
-
-                if (col2 && /^(Unit|\d+)/i.test(col0)) {
-                    cardUnit = col0.startsWith('Unit') ? col0 : `Unit ${col0}`;
-                    word = col1;
-                    details = col2;
-                }
-
-                if (!word) continue;
-
-                const parsed = parseSecondColumn(details);
-                if (!outputGrouped[cardUnit]) {
-                    outputGrouped[cardUnit] = [];
-                }
-
-                outputGrouped[cardUnit].push({
-                    unit: cardUnit,
-                    word: word,
-                    pos: parsed.pos,
-                    translation: parsed.translation,
-                    forms: parsed.forms,
-                    collocation: parsed.collocation,
-                    sentence: parsed.sentence
-                });
-            }
+    function switchSourceTab(tab) {
+      currentSourceTab = tab;
+      const tabs = { all: "tabAll", textbook: "tabTextbook", magazine: "tabMagazine" };
+      Object.keys(tabs).forEach(t => {
+        const el = document.getElementById(tabs[t]);
+        if (t === tab) {
+          el.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition bg-white text-indigo-700 shadow-sm";
+        } else {
+          el.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition";
         }
+      });
 
-        // 資料就緒後的初始化流程
-        function onDataReady() {
-            loadingStatus.classList.add('hidden');
-            renderPickerList();
+      const secTextbook = document.getElementById("sectionTextbook");
+      const secMagazine = document.getElementById("sectionMagazine");
+      if (tab === "all") {
+        secTextbook.style.display = "block";
+        secMagazine.style.display = "block";
+      } else if (tab === "textbook") {
+        secTextbook.style.display = "block";
+        secMagazine.style.display = "none";
+      } else {
+        secTextbook.style.display = "none";
+        secMagazine.style.display = "block";
+      }
+    }
 
-            const restored = loadSavedProgress();
-            if (!restored) {
-                // 預設全選所有單元的所有單字
-                selectAllCards();
-                startStudyWithSelected(false);
-            } else {
-                studyContainer.classList.remove('hidden');
-                renderCurrentCard();
-            }
+    function buildQueueFromSelection() {
+      queue = [];
+      for (const unit of selectedUnitKeys) {
+        if (allUnitsData[unit]) {
+          queue.push(...allUnitsData[unit]);
         }
+      }
+      // 洗牌
+      queue = queue.sort(() => Math.random() - 0.5);
+      initialCount = queue.length;
+      srsStats = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
+      updateStats();
+      showCard();
+    }
 
-        // 渲染單元與單字挑選列表 (做法四)
-        function renderPickerList() {
-            unitListContainer.innerHTML = '';
-            const units = Object.keys(categorizedVocab);
+    /* =========================================================
+       4. 卡片顯示、翻面與圖片預加載
+       ========================================================= */
+    function showCard() {
+      if (queue.length === 0) {
+        document.getElementById("completionModal").classList.remove("hidden");
+        document.getElementById("summaryAgain").innerText = srsStats.Again;
+        document.getElementById("summaryHard").innerText = srsStats.Hard;
+        document.getElementById("summaryGood").innerText = srsStats.Good;
+        document.getElementById("summaryEasy").innerText = srsStats.Easy;
+        return;
+      }
 
-            units.forEach((unitName, unitIdx) => {
-                const cards = categorizedVocab[unitName] || [];
-                const unitCard = document.createElement('div');
-                unitCard.className = 'border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs';
+      setFlipped(false);
+      const card = queue[0];
 
-                unitCard.innerHTML = `
-                    <div class="bg-slate-50 px-4 py-2.5 flex items-center justify-between border-b border-slate-200/80">
-                        <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800 text-sm select-none">
-                            <input type="checkbox" data-unit="${unitName}" class="unit-master-checkbox w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer">
-                            <span>${unitName}</span>
-                            <span class="text-xs font-normal text-slate-400">(${cards.length} 字)</span>
-                        </label>
-                        <button type="button" data-collapse="unit-body-${unitIdx}" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium toggle-collapse-btn">
-                            展開 / 收合
-                        </button>
-                    </div>
-                    <div id="unit-body-${unitIdx}" class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                        ${cards.map((c, cIdx) => `
-                            <label class="flex items-start gap-2 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-transparent hover:border-slate-200 transition">
-                                <input type="checkbox" data-unit="${unitName}" data-word="${c.word}" class="card-item-checkbox w-3.5 h-3.5 mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer">
-                                <div class="flex-1 min-w-0">
-                                    <div class="font-bold text-slate-800 truncate">${c.word}</div>
-                                    <div class="text-[11px] text-slate-500 truncate">${c.translation || '-'}</div>
-                                </div>
-                            </label>
-                        `).join('')}
-                    </div>
-                `;
+      // 正面
+      document.getElementById("cardWord").innerText = card.word;
+      document.getElementById("cardSourceTag").innerText = `${card.type === 'textbook' ? '課本' : '雜誌'} · ${card.unit}`;
 
-                unitListContainer.appendChild(unitCard);
-            });
+      // 背面
+      document.getElementById("cardPos").innerText = card.pos || "";
+      document.getElementById("cardMeaning").innerText = card.meaning || "";
 
-            // 綁定單元母勾選框事件
-            document.querySelectorAll('.unit-master-checkbox').forEach(cb => {
-                cb.addEventListener('change', (e) => {
-                    const u = e.target.getAttribute('data-unit');
-                    const isChecked = e.target.checked;
-                    document.querySelectorAll(`.card-item-checkbox[data-unit="${u}"]`).forEach(itemCb => {
-                        itemCb.checked = isChecked;
-                    });
-                    updateSelectedBadgeCount();
-                });
-            });
+      toggleField("boxForms", "cardForms", card.forms);
+      toggleField("boxCollocation", "cardCollocation", card.collocation);
 
-            // 綁定個別單字勾選框事件
-            document.querySelectorAll('.card-item-checkbox').forEach(cb => {
-                cb.addEventListener('change', (e) => {
-                    const u = e.target.getAttribute('data-unit');
-                    const allInUnit = document.querySelectorAll(`.card-item-checkbox[data-unit="${u}"]`);
-                    const checkedInUnit = document.querySelectorAll(`.card-item-checkbox[data-unit="${u}"]:checked`);
-                    const masterCb = document.querySelector(`.unit-master-checkbox[data-unit="${u}"]`);
-                    if (masterCb) {
-                        masterCb.checked = allInUnit.length === checkedInUnit.length;
-                    }
-                    updateSelectedBadgeCount();
-                });
-            });
+      document.getElementById("cardSentenceEn").innerText = card.sentenceEn || card.word;
+      document.getElementById("cardSentenceZh").innerText = card.sentenceZh || "";
 
-            // 綁定收合按鈕
-            document.querySelectorAll('.toggle-collapse-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const targetId = btn.getAttribute('data-collapse');
-                    const targetEl = document.getElementById(targetId);
-                    if (targetEl) {
-                        targetEl.classList.toggle('hidden');
-                    }
-                });
-            });
+      // 圖片載入 (Picsum with seed)
+      const imgEl = document.getElementById("cardImage");
+      imgEl.src = `https://picsum.photos/seed/${encodeURIComponent(card.word)}/600/220`;
+
+      // 預加載接下來 3 張
+      preloadNextImages();
+
+      // 自動朗讀正面
+      setTimeout(() => pronounce(card.word), 150);
+      updateStats();
+    }
+
+    function toggleField(boxId, textId, value) {
+      const box = document.getElementById(boxId);
+      const text = document.getElementById(textId);
+      if (value && value.trim()) {
+        box.classList.remove("hidden");
+        text.innerText = value;
+      } else {
+        box.classList.add("hidden");
+      }
+    }
+
+    function preloadNextImages() {
+      for (let i = 1; i <= 3 && i < queue.length; i++) {
+        const nextImg = new Image();
+        nextImg.src = `https://picsum.photos/seed/${encodeURIComponent(queue[i].word)}/600/220`;
+      }
+    }
+
+    function setFlipped(flipped) {
+      isFlipped = flipped;
+      const el = document.getElementById("flashcard");
+      if (isFlipped) {
+        el.classList.add("rotate-y-180");
+        if (queue.length > 0) {
+          setTimeout(() => pronounce(queue[0].sentenceEn || queue[0].word), 250);
         }
+      } else {
+        el.classList.remove("rotate-y-180");
+      }
+    }
 
-        function updateSelectedBadgeCount() {
-            const count = document.querySelectorAll('.card-item-checkbox:checked').length;
-            selectedCountBadge.textContent = count;
+    /* =========================================================
+       5. SRS 演算法調度邏輯
+       ========================================================= */
+    function handleSRS(rating) {
+      if (queue.length === 0) return;
+      srsStats[rating]++;
+      const current = queue.shift();
+
+      if (rating === "Again") {
+        const insertIdx = Math.min(1, queue.length);
+        queue.splice(insertIdx, 0, current);
+      } else if (rating === "Hard") {
+        const insertIdx = Math.ceil(queue.length / 2);
+        queue.splice(insertIdx, 0, current);
+      } else if (rating === "Good") {
+        queue.push(current);
+      } else if (rating === "Easy") {
+        // 從本輪移除
+      }
+
+      showCard();
+    }
+
+    function updateStats() {
+      const remaining = queue.length;
+      document.getElementById("counter").innerText = `${remaining} / ${initialCount}`;
+      const percent = initialCount > 0 ? ((initialCount - remaining) / initialCount) * 100 : 0;
+      document.getElementById("progressBar").style.width = `${percent}%`;
+
+      document.getElementById("statAgain").innerText = `Again ${srsStats.Again}`;
+      document.getElementById("statHard").innerText = `Hard ${srsStats.Hard}`;
+      document.getElementById("statGood").innerText = `Good ${srsStats.Good}`;
+      document.getElementById("statEasy").innerText = `Easy ${srsStats.Easy}`;
+    }
+
+    function restartSession() {
+      document.getElementById("completionModal").classList.add("hidden");
+      buildQueueFromSelection();
+    }
+
+    /* =========================================================
+       6. 美式英語發音系統 (en-US Natural)
+       ========================================================= */
+    function initVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      currentVoice = voices.find(v => v.lang.includes("en-US") && (v.name.includes("Jenny") || v.name.includes("Guy") || v.name.includes("Natural") || v.name.includes("Samantha"))) 
+                  || voices.find(v => v.lang === "en-US")
+                  || voices.find(v => v.lang.startsWith("en"));
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = initVoices;
+      initVoices();
+    }
+
+    function pronounce(text) {
+      if (!('speechSynthesis' in window) || !text) return;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.resume();
+
+      const cleanText = text.replace(/[\u4e00-\u9fa5]/g, '').replace(/[\(\)\[\]（）]/g, '').trim();
+      if (!cleanText) return;
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = "en-US";
+      utterance.rate = 0.92;
+      if (currentVoice) utterance.voice = currentVoice;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    /* =========================================================
+       7. 鍵盤事件與按鈕監聽
+       ========================================================= */
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      loadExternalCSVs();
+
+      document.getElementById("flashcard").onclick = () => setFlipped(!isFlipped);
+      
+      document.getElementById("btnPronounceFront").onclick = (e) => {
+        e.stopPropagation();
+        if (queue.length > 0) pronounce(queue[0].word);
+      };
+
+      document.getElementById("btnPronounceBack").onclick = (e) => {
+        e.stopPropagation();
+        if (queue.length > 0) pronounce(queue[0].sentenceEn || queue[0].word);
+      };
+
+      document.getElementById("btnOpenScopeModal").onclick = openScopeModal;
+      document.getElementById("btnCloseScopeModal").onclick = () => toggleModal("scopeModal", false);
+      document.getElementById("btnCancelScope").onclick = () => toggleModal("scopeModal", false);
+      document.getElementById("btnApplyScope").onclick = () => {
+        if (selectedUnitKeys.size === 0) {
+          alert("請至少選擇一個課次或單元！");
+          return;
         }
+        toggleModal("scopeModal", false);
+        buildQueueFromSelection();
+      };
 
-        function selectAllCards() {
-            document.querySelectorAll('.unit-master-checkbox, .card-item-checkbox').forEach(cb => {
-                cb.checked = true;
-            });
-            updateSelectedBadgeCount();
+      document.getElementById("btnInfoModal").onclick = () => toggleModal("infoModal", true);
+
+      // 快捷鍵
+      window.addEventListener("keydown", (e) => {
+        if (e.target.tagName === "INPUT") return;
+        if (e.code === "Space") {
+          e.preventDefault();
+          setFlipped(!isFlipped);
+        } else if (e.code === "Enter") {
+          e.preventDefault();
+          if (queue.length > 0) {
+            pronounce(isFlipped ? (queue[0].sentenceEn || queue[0].word) : queue[0].word);
+          }
+        } else if (["1", "2", "3", "4"].includes(e.key)) {
+          const map = { "1": "Again", "2": "Hard", "3": "Good", "4": "Easy" };
+          handleSRS(map[e.key]);
         }
-
-        function deselectAllCards() {
-            document.querySelectorAll('.unit-master-checkbox, .card-item-checkbox').forEach(cb => {
-                cb.checked = false;
-            });
-            updateSelectedBadgeCount();
-        }
-
-        function syncCheckboxesFromSelection() {
-            const selectedWordSet = new Set(selectedCards.map(c => `${c.unit}__${c.word}`));
-            document.querySelectorAll('.card-item-checkbox').forEach(cb => {
-                const key = `${cb.getAttribute('data-unit')}__${cb.getAttribute('data-word')}`;
-                cb.checked = selectedWordSet.has(key);
-            });
-
-            Object.keys(categorizedVocab).forEach(u => {
-                const all = document.querySelectorAll(`.card-item-checkbox[data-unit="${u}"]`);
-                const checked = document.querySelectorAll(`.card-item-checkbox[data-unit="${u}"]:checked`);
-                const master = document.querySelector(`.unit-master-checkbox[data-unit="${u}"]`);
-                if (master) {
-                    master.checked = all.length > 0 && all.length === checked.length;
-                }
-            });
-            updateSelectedBadgeCount();
-        }
-
-        function startStudyWithSelected(resetStats = true) {
-            const checkedBoxes = Array.from(document.querySelectorAll('.card-item-checkbox:checked'));
-            if (checkedBoxes.length === 0) {
-                alert('請至少勾選一個單字進行複習！');
-                return;
-            }
-
-            const chosen = [];
-            const unitsSelected = new Set();
-
-            checkedBoxes.forEach(cb => {
-                const u = cb.getAttribute('data-unit');
-                const w = cb.getAttribute('data-word');
-                unitsSelected.add(u);
-                const card = (categorizedVocab[u] || []).find(item => item.word === w);
-                if (card) chosen.push(card);
-            });
-
-            selectedCards = chosen;
-            queue = [...selectedCards];
-            totalOriginalCount = queue.length;
-
-            if (unitsSelected.size === Object.keys(categorizedVocab).length) {
-                currentLabel = '全部單元';
-            } else if (unitsSelected.size === 1) {
-                currentLabel = Array.from(unitsSelected)[0];
-            } else {
-                currentLabel = `已選 ${unitsSelected.size} 個單元 (${chosen.length} 字)`;
-            }
-
-            currentSelectionLabel.textContent = currentLabel;
-
-            if (resetStats) {
-                srsStats = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
-                clearSavedProgress();
-            }
-
-            updateStatsUI();
-            closePickerModal();
-
-            studyContainer.classList.remove('hidden');
-            completionScreen.classList.add('hidden');
-            renderCurrentCard();
-            saveProgress();
-        }
-
-        function openPickerModal() {
-            syncCheckboxesFromSelection();
-            pickerModal.classList.remove('hidden');
-        }
-
-        function closePickerModal() {
-            pickerModal.classList.add('hidden');
-        }
-
-        // 圖片配圖與預加載
-        function getImageUrlForWord(word, fallbackLevel = 0) {
-            if (!word) return 'https://placehold.co/600x240/f1f5f9/64748b?text=Vocabulary';
-            const cleanWord = word.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-            if (fallbackLevel === 0) {
-                return `https://picsum.photos/seed/${encodeURIComponent(cleanWord || 'study')}/600/240`;
-            } else if (fallbackLevel === 1) {
-                return `https://loremflickr.com/600/240/${encodeURIComponent(cleanWord || 'english')}?lock=${encodeURIComponent(cleanWord || '1')}`;
-            } else {
-                return `https://placehold.co/600x240/4f46e5/ffffff?text=${encodeURIComponent(word)}`;
-            }
-        }
-
-        function onImageLoaded() {
-            backImage.classList.remove('opacity-0');
-            cardImageSkeleton.classList.add('hidden');
-        }
-
-        function onImageError(imgEl) {
-            const level = parseInt(imgEl.getAttribute('data-level') || '0', 10);
-            if (level < 2) {
-                const nextLevel = level + 1;
-                imgEl.setAttribute('data-level', nextLevel);
-                imgEl.src = getImageUrlForWord(currentImageWord, nextLevel);
-            } else {
-                imgEl.src = `https://placehold.co/600x240/4f46e5/ffffff?text=${encodeURIComponent(currentImageWord || 'Word')}`;
-                onImageLoaded();
-            }
-        }
-
-        function preloadUpcomingImages() {
-            const countToPreload = Math.min(queue.length, 4);
-            for (let i = 0; i < countToPreload; i++) {
-                const card = queue[i];
-                if (!card || !card.word) continue;
-                const url = getImageUrlForWord(card.word, 0);
-                if (!imageCache.has(url)) {
-                    const img = new Image();
-                    img.src = url;
-                    imageCache.set(url, img);
-                }
-            }
-        }
-
-        // 進度儲存與讀取
-        function saveProgress() {
-            try {
-                const dataToSave = {
-                    currentLabel: currentLabel,
-                    selectedCards: selectedCards,
-                    queue: queue,
-                    totalOriginalCount: totalOriginalCount,
-                    srsStats: srsStats,
-                    timestamp: Date.now()
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-            } catch (err) {
-                console.warn('無法儲存學習進度:', err);
-            }
-        }
-
-        function clearSavedProgress() {
-            try {
-                localStorage.removeItem(STORAGE_KEY);
-            } catch (err) {
-                console.warn('無法清除進度:', err);
-            }
-        }
-
-        function loadSavedProgress() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (!saved) return false;
-
-                const parsed = JSON.parse(saved);
-                if (parsed && Array.isArray(parsed.queue) && parsed.queue.length > 0) {
-                    currentLabel = parsed.currentLabel || '自訂選取單元';
-                    selectedCards = parsed.selectedCards || [];
-                    queue = parsed.queue;
-                    totalOriginalCount = typeof parsed.totalOriginalCount === 'number' ? parsed.totalOriginalCount : queue.length;
-                    srsStats = parsed.srsStats || { Again: 0, Hard: 0, Good: 0, Easy: 0 };
-
-                    currentSelectionLabel.textContent = currentLabel;
-                    updateStatsUI();
-                    return true;
-                }
-            } catch (err) {
-                console.warn('讀取進度失敗:', err);
-            }
-            return false;
-        }
-
-        function updateStatsUI() {
-            countAgain.textContent = srsStats.Again;
-            countHard.textContent = srsStats.Hard;
-            countGood.textContent = srsStats.Good;
-            countEasy.textContent = srsStats.Easy;
-        }
-
-        // 自然語音朗讀系統
-        function loadVoices() {
-            if (!('speechSynthesis' in window)) return;
-            const voices = window.speechSynthesis.getVoices();
-            if (!voices || voices.length === 0) return;
-
-            const usVoices = voices.filter(v => v.lang && (v.lang === 'en-US' || v.lang === 'en_US'));
-            const generalEnVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
-
-            const preferredUSList = [
-                v => (v.name.includes('Natural') || v.name.includes('Online')) && (v.name.includes('Jenny') || v.name.includes('Guy') || v.name.includes('Aria') || v.name.includes('Christopher') || v.name.includes('Eric')),
-                v => v.name.includes('Google US English') || v.name === 'Google US English',
-                v => (v.name.includes('Natural') || v.name.includes('Online')) && (v.lang === 'en-US' || v.lang === 'en_US'),
-                v => ['Samantha', 'Alex', 'Ava', 'Allison', 'Tom', 'Fred'].some(name => v.name.includes(name)) && (v.lang === 'en-US' || v.lang === 'en_US'),
-                v => v.lang === 'en-US' || v.lang === 'en_US'
-            ];
-
-            for (const matcher of preferredUSList) {
-                const found = usVoices.find(matcher);
-                if (found) {
-                    preferredVoice = found;
-                    return;
-                }
-            }
-
-            preferredVoice = usVoices[0] || generalEnVoices[0] || voices[0];
-        }
-
-        if ('speechSynthesis' in window) {
-            loadVoices();
-            window.speechSynthesis.onvoiceschanged = loadVoices;
-        }
-
-        function cleanEnglishText(text) {
-            if (!text) return '';
-            let clean = text.replace(/（[^）]*[\u4e00-\u9fa5]+[^）]*）/g, '')
-                            .replace(/\([^)]*[\u4e00-\u9fa5]+[^)]*\)/g, '')
-                            .replace(/（[^）]*）/g, '')
-                            .replace(/[\u4e00-\u9fa5]/g, '')
-                            .replace(/[【】「」『』]/g, '')
-                            .replace(/例句\s*[:：]?/gi, '')
-                            .replace(/([a-zA-Z])([,.;:?!])([a-zA-Z])/g, '$1$2 $3')
-                            .trim();
-            return clean.replace(/\s+/g, ' ');
-        }
-
-        function speakEnglish(text) {
-            if (!text || !('speechSynthesis' in window)) return;
-            const cleanText = cleanEnglishText(text);
-            if (!cleanText) return;
-
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(cleanText);
-
-            if (!preferredVoice) loadVoices();
-
-            if (preferredVoice) {
-                utterance.voice = preferredVoice;
-                utterance.lang = preferredVoice.lang || 'en-US';
-            } else {
-                utterance.lang = 'en-US';
-            }
-
-            utterance.rate = 0.92;
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
-
-            window.currentUtterance = utterance;
-            utterance.onend = () => { window.currentUtterance = null; };
-            utterance.onerror = () => { window.currentUtterance = null; };
-
-            window.speechSynthesis.resume();
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function renderCurrentCard() {
-            if (queue.length === 0) {
-                showCompletionScreen();
-                return;
-            }
-
-            const card = queue[0];
-            frontWord.textContent = card.word || '';
-
-            currentImageWord = card.word || '';
-            const imgUrl = getImageUrlForWord(card.word, 0);
-            cardImageSkeleton.classList.remove('hidden');
-            backImage.classList.add('opacity-0');
-            backImage.setAttribute('data-level', '0');
-            backImage.src = imgUrl;
-
-            if (card.pos) {
-                posRow.classList.remove('hidden');
-                backPos.textContent = card.pos;
-            } else {
-                posRow.classList.add('hidden');
-            }
-
-            if (card.translation) {
-                transRow.classList.remove('hidden');
-                backTrans.textContent = card.translation;
-            } else {
-                transRow.classList.add('hidden');
-            }
-
-            if (card.forms) {
-                formsRow.classList.remove('hidden');
-                backForms.textContent = card.forms;
-            } else {
-                formsRow.classList.add('hidden');
-            }
-
-            if (card.collocation) {
-                collocRow.classList.remove('hidden');
-                backColloc.textContent = card.collocation;
-            } else {
-                collocRow.classList.add('hidden');
-            }
-
-            if (card.sentence) {
-                sentenceRow.classList.remove('hidden');
-                backSentence.textContent = card.sentence;
-            } else {
-                sentenceRow.classList.add('hidden');
-            }
-
-            const remainingCount = queue.length;
-            progressText.textContent = `${remainingCount} / ${totalOriginalCount}`;
-            const percentage = totalOriginalCount > 0 ? Math.max(0, Math.min(100, ((totalOriginalCount - remainingCount) / totalOriginalCount) * 100)) : 100;
-            progressBar.style.width = `${percentage}%`;
-
-            isFlipped = false;
-            flashcard.classList.remove('rotate-y-180');
-            hideSRSButtons();
-
-            speakEnglish(card.word);
-            preloadUpcomingImages();
-        }
-
-        function toggleFlip() {
-            if (queue.length === 0) return;
-            isFlipped = !isFlipped;
-            const currentCard = queue[0];
-
-            if (isFlipped) {
-                flashcard.classList.add('rotate-y-180');
-                showSRSButtons();
-                if (currentCard && currentCard.sentence) {
-                    speakEnglish(currentCard.sentence);
-                }
-            } else {
-                flashcard.classList.remove('rotate-y-180');
-                hideSRSButtons();
-                if (currentCard && currentCard.word) {
-                    speakEnglish(currentCard.word);
-                }
-            }
-        }
-
-        function showSRSButtons() {
-            srsButtonRow.classList.remove('invisible', 'opacity-0');
-            srsButtonRow.classList.add('opacity-100');
-        }
-
-        function hideSRSButtons() {
-            srsButtonRow.classList.add('opacity-0');
-            setTimeout(() => {
-                if (!isFlipped) {
-                    srsButtonRow.classList.add('invisible');
-                }
-            }, 300);
-        }
-
-        function handleSRSAction(rating) {
-            if (queue.length === 0) return;
-
-            const card = queue.shift();
-            srsStats[rating]++;
-            updateStatsUI();
-
-            switch (rating) {
-                case 'Again':
-                    if (queue.length >= 1) {
-                        queue.splice(1, 0, card);
-                    } else {
-                        queue.push(card);
-                    }
-                    break;
-                case 'Hard':
-                    if (queue.length > 0) {
-                        const midIndex = Math.ceil(queue.length / 2);
-                        queue.splice(midIndex, 0, card);
-                    } else {
-                        queue.push(card);
-                    }
-                    break;
-                case 'Good':
-                    queue.push(card);
-                    break;
-                case 'Easy':
-                    break;
-            }
-
-            saveProgress();
-            renderCurrentCard();
-        }
-
-        function showCompletionScreen() {
-            window.speechSynthesis.cancel();
-            studyContainer.classList.add('hidden');
-            completionScreen.classList.remove('hidden');
-
-            completionUnitText.textContent = `【${currentLabel}】的所有單字皆已達成記憶目標，點擊下方按鈕可重新開始複習。`;
-
-            summaryAgain.textContent = srsStats.Again;
-            summaryHard.textContent = srsStats.Hard;
-            summaryGood.textContent = srsStats.Good;
-            summaryEasy.textContent = srsStats.Easy;
-            progressText.textContent = `0 / ${totalOriginalCount}`;
-            progressBar.style.width = '100%';
-
-            clearSavedProgress();
-            lucide.createIcons();
-        }
-
-        function triggerCurrentAudio() {
-            if (queue.length === 0) return;
-            const currentCard = queue[0];
-            if (!currentCard) return;
-
-            if (!isFlipped) {
-                speakEnglish(currentCard.word);
-            } else {
-                if (currentCard.sentence) {
-                    speakEnglish(currentCard.sentence);
-                }
-            }
-        }
-
-        function parseSecondColumn(rawDetails) {
-            const result = {
-                pos: '',
-                translation: '',
-                forms: '',
-                collocation: '',
-                sentence: ''
-            };
-
-            if (!rawDetails) return result;
-
-            const lines = rawDetails.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
-            let currentSection = null;
-
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-
-                if (/^[【\[\s]*(詞性變化|變化|衍生字|forms?|derivative)[】\]\s]*[:：]?/i.test(line)) {
-                    currentSection = 'forms';
-                    const val = line.replace(/^[【\[\s]*(詞性變化|變化|衍生字|forms?|derivative)[】\]\s]*[:：]?/i, '').trim();
-                    if (val) result.forms = result.forms ? (result.forms + '\n' + val) : val;
-                    continue;
-                }
-                
-                if (/^[【\[\s]*(搭配詞|搭配|collocations?)[】\]\s]*[:：]?/i.test(line)) {
-                    currentSection = 'collocation';
-                    const val = line.replace(/^[【\[\s]*(搭配詞|搭配|collocations?)[】\]\s]*[:：]?/i, '').trim();
-                    if (val) result.collocation = result.collocation ? (result.collocation + '\n' + val) : val;
-                    continue;
-                }
-
-                if (/^[【\[\s]*(例句|example|sentences?)[】\]\s]*[:：]?/i.test(line)) {
-                    currentSection = 'sentence';
-                    const val = line.replace(/^[【\[\s]*(例句|example|sentences?)[】\]\s]*[:：]?/i, '').trim();
-                    if (val) result.sentence = result.sentence ? (result.sentence + '\n' + val) : val;
-                    continue;
-                }
-
-                if (/^[【\[\s]*(詞性|pos)[】\]\s]*[:：]/i.test(line)) {
-                    currentSection = 'pos';
-                    result.pos = line.replace(/^[【\[\s]*(詞性|pos)[】\]\s]*[:：]/i, '').trim();
-                    continue;
-                }
-
-                if (/^[【\[\s]*(中文|翻譯|中文翻譯|meaning|definition)[】\]\s]*[:：]/i.test(line)) {
-                    currentSection = 'translation';
-                    result.translation = line.replace(/^[【\[\s]*(中文|翻譯|中文翻譯|meaning|definition)[】\]\s]*[:：]/i, '').trim();
-                    continue;
-                }
-
-                if (currentSection) {
-                    if (currentSection === 'forms') {
-                        result.forms = result.forms ? (result.forms + '\n' + line) : line;
-                    } else if (currentSection === 'collocation') {
-                        result.collocation = result.collocation ? (result.collocation + '\n' + line) : line;
-                    } else if (currentSection === 'sentence') {
-                        result.sentence = result.sentence ? (result.sentence + '\n' + line) : line;
-                    } else if (currentSection === 'translation') {
-                        result.translation = result.translation ? (result.translation + ' ' + line) : line;
-                    }
-                    continue;
-                }
-
-                const posMatch = line.match(/(?:\b[a-zA-Z]+\s+)?\(([a-zA-Z]+\.?)\)\s*(.*)/) || line.match(/^\[([a-zA-Z]+\.?)\]\s*(.*)/);
-                if (posMatch) {
-                    if (!result.pos) result.pos = posMatch[1].trim();
-                    if (!result.translation && posMatch[2]) result.translation = posMatch[2].trim();
-                    continue;
-                }
-
-                if (!result.translation) {
-                    result.translation = line;
-                } else if (!result.sentence && /[a-zA-Z]{3,}/.test(line)) {
-                    result.sentence = line;
-                } else if (!result.collocation) {
-                    result.collocation = line;
-                }
-            }
-
-            return result;
-        }
-
-        function parseCSV(text) {
-            const rows = [];
-            let currentRow = [];
-            let currentField = '';
-            let insideQuotes = false;
-
-            if (text.charCodeAt(0) === 0xFEFF) {
-                text = text.slice(1);
-            }
-
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const nextChar = text[i + 1];
-
-                if (char === '"') {
-                    if (insideQuotes && nextChar === '"') {
-                        currentField += '"';
-                        i++;
-                    } else {
-                        insideQuotes = !insideQuotes;
-                    }
-                } else if (char === ',' && !insideQuotes) {
-                    currentRow.push(currentField.trim());
-                    currentField = '';
-                } else if ((char === '\r' || char === '\n') && !insideQuotes) {
-                    if (char === '\r' && nextChar === '\n') {
-                        i++;
-                    }
-                    currentRow.push(currentField.trim());
-                    if (currentRow.some(col => col.length > 0)) {
-                        rows.push(currentRow);
-                    }
-                    currentRow = [];
-                    currentField = '';
-                } else {
-                    currentField += char;
-                }
-            }
-
-            if (currentField.length > 0 || currentRow.length > 0) {
-                currentRow.push(currentField.trim());
-                if (currentRow.some(col => col.length > 0)) {
-                    rows.push(currentRow);
-                }
-            }
-
-            return rows;
-        }
-
-        // 綁定按鈕事件
-        flashcard.addEventListener('click', (e) => {
-            if (e.target.closest('#frontAudioBtn') || e.target.closest('#backAudioBtn')) return;
-            toggleFlip();
-        });
-
-        frontAudioBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (queue.length > 0) speakEnglish(queue[0].word);
-        });
-
-        backAudioBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (queue.length > 0 && queue[0].sentence) {
-                speakEnglish(queue[0].sentence);
-            }
-        });
-
-        btnAgain.addEventListener('click', () => handleSRSAction('Again'));
-        btnHard.addEventListener('click', () => handleSRSAction('Hard'));
-        btnGood.addEventListener('click', () => handleSRSAction('Good'));
-        btnEasy.addEventListener('click', () => handleSRSAction('Easy'));
-
-        restartBtn.addEventListener('click', () => {
-            queue = [...selectedCards];
-            totalOriginalCount = queue.length;
-            srsStats = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
-            updateStatsUI();
-            studyContainer.classList.remove('hidden');
-            completionScreen.classList.add('hidden');
-            renderCurrentCard();
-            clearSavedProgress();
-        });
-
-        // 挑選單元彈窗控制事件
-        openPickerBtn.addEventListener('click', openPickerModal);
-        reopenPickerBtn.addEventListener('click', openPickerModal);
-        closePickerBtn.addEventListener('click', closePickerModal);
-        cancelPickerBtn.addEventListener('click', closePickerModal);
-        startStudySelectedBtn.addEventListener('click', () => startStudyWithSelected(true));
-        selectAllUnitsBtn.addEventListener('click', selectAllCards);
-        deselectAllBtn.addEventListener('click', deselectAllCards);
-
-        function openInfoModal() {
-            infoModal.classList.remove('hidden');
-        }
-
-        function closeInfoModal() {
-            infoModal.classList.add('hidden');
-        }
-
-        infoBtn.addEventListener('click', openInfoModal);
-        closeInfoBtn.addEventListener('click', closeInfoModal);
-        confirmInfoBtn.addEventListener('click', closeInfoModal);
-        infoModal.addEventListener('click', (e) => {
-            if (e.target === infoModal) closeInfoModal();
-        });
-
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (!infoModal.classList.contains('hidden')) closeInfoModal();
-                if (!pickerModal.classList.contains('hidden')) closePickerModal();
-                return;
-            }
-
-            if (!infoModal.classList.contains('hidden') || !pickerModal.classList.contains('hidden')) {
-                return;
-            }
-
-            if (e.code === 'Space') {
-                e.preventDefault();
-                toggleFlip();
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                triggerCurrentAudio();
-            } else if (e.key === '1') {
-                e.preventDefault();
-                if (isFlipped) handleSRSAction('Again');
-            } else if (e.key === '2') {
-                e.preventDefault();
-                if (isFlipped) handleSRSAction('Hard');
-            } else if (e.key === '3') {
-                e.preventDefault();
-                if (isFlipped) handleSRSAction('Good');
-            } else if (e.key === '4') {
-                e.preventDefault();
-                if (isFlipped) handleSRSAction('Easy');
-            }
-        });
-
-        // 啟動加載
-        window.onload = function () {
-            fetchExternalCSV();
-        };
-    </script>
+      });
+    });
+
+    function openScopeModal() {
+      renderScopeUnitList();
+      toggleModal("scopeModal", true);
+    }
+
+    function toggleModal(id, show) {
+      const modal = document.getElementById(id);
+      if (show) {
+        modal.classList.remove("hidden");
+        lucide.createIcons();
+      } else {
+        modal.classList.add("hidden");
+      }
+    }
+  </script>
 </body>
 </html>
