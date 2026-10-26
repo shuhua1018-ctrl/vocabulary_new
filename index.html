@@ -13,7 +13,6 @@
     .transform-style-3d { transform-style: preserve-3d; }
     .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
     .rotate-y-180 { transform: rotateY(180deg); }
-    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col font-sans select-none">
@@ -27,12 +26,10 @@
       </div>
       
       <div class="flex items-center space-x-2">
-        <!-- 範圍選擇按鈕 -->
         <button id="btnOpenScopeModal" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition shadow-sm border border-indigo-200">
           <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
           <span id="scopeButtonText">選擇複習範圍</span>
         </button>
-        <!-- 說明 (Info) -->
         <button id="btnInfoModal" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition" title="操作說明">
           <i data-lucide="info" class="w-5 h-5"></i>
         </button>
@@ -62,13 +59,13 @@
     </div>
 
     <!-- 3D 翻轉字卡本體 -->
-    <div class="relative w-full h-[450px] perspective-1000">
+    <div class="relative w-full h-[470px] perspective-1000">
       <div id="flashcard" class="w-full h-full relative transform-style-3d transition-transform duration-500 cursor-pointer shadow-md rounded-2xl bg-white border border-slate-200">
         
         <!-- 卡片正面 (Front) -->
         <div class="absolute inset-0 backface-hidden flex flex-col justify-between p-6 bg-white rounded-2xl">
           <div class="flex justify-between items-center text-xs">
-            <span id="cardSourceTag" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-semibold rounded-full border border-indigo-100">課本</span>
+            <span id="cardSourceTag" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-semibold rounded-full border border-indigo-100">雜誌</span>
             <span class="text-slate-400">點擊卡片或按 Space 翻面</span>
           </div>
 
@@ -90,34 +87,38 @@
         <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col p-5 bg-white rounded-2xl overflow-hidden justify-between">
           <div class="flex-1 flex flex-col overflow-hidden">
             <!-- 語意視覺圖 -->
-            <div class="w-full h-28 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative mb-3 border border-slate-100">
+            <div class="w-full h-24 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative mb-3 border border-slate-100">
               <img id="cardImage" src="" alt="Vocabulary Image" class="w-full h-full object-cover">
             </div>
 
-            <!-- 單字解析內容 -->
-            <div class="space-y-1.5 text-left text-sm flex-1 overflow-y-auto pr-1">
+            <!-- 單字解析內容 (分行清楚排列) -->
+            <div class="space-y-2 text-left text-sm flex-1 overflow-y-auto pr-1">
+              <!-- 詞性與釋義 -->
               <div class="flex items-baseline gap-2">
-                <span id="cardPos" class="font-bold text-indigo-600 italic"></span>
-                <span id="cardMeaning" class="font-semibold text-slate-800 text-base"></span>
+                <span id="cardPos" class="font-bold text-indigo-600 italic text-base"></span>
+                <span id="cardMeaning" class="font-semibold text-slate-800 text-sm leading-snug"></span>
               </div>
 
-              <div id="boxForms" class="text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100 hidden">
-                <span class="font-bold text-slate-700">【詞性變化】</span>
-                <span id="cardForms"></span>
+              <!-- 詞性變化 -->
+              <div id="boxForms" class="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 hidden">
+                <div class="font-bold text-slate-700 mb-0.5">【詞性變化】</div>
+                <div id="cardForms" class="space-y-0.5 text-slate-600"></div>
               </div>
 
-              <div id="boxCollocation" class="text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100 hidden">
-                <span class="font-bold text-slate-700">【搭配詞】</span>
-                <span id="cardCollocation"></span>
+              <!-- 搭配詞 -->
+              <div id="boxCollocation" class="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 hidden">
+                <div class="font-bold text-slate-700 mb-0.5">【搭配詞】</div>
+                <div id="cardCollocation" class="space-y-0.5 text-slate-600"></div>
               </div>
 
-              <div id="boxSentence" class="bg-indigo-50/60 p-2 rounded-lg border border-indigo-100 flex items-start justify-between gap-2">
-                <div class="text-xs space-y-0.5">
+              <!-- 例句 -->
+              <div id="boxSentence" class="bg-indigo-50/60 p-2.5 rounded-lg border border-indigo-100 flex items-start justify-between gap-2">
+                <div class="text-xs space-y-1 flex-1">
                   <div class="font-bold text-indigo-950 flex items-center gap-1">
                     <span>【例句】</span>
                   </div>
-                  <p id="cardSentenceEn" class="text-slate-800 font-medium"></p>
-                  <p id="cardSentenceZh" class="text-slate-500"></p>
+                  <p id="cardSentenceEn" class="text-slate-800 font-medium leading-relaxed"></p>
+                  <p id="cardSentenceZh" class="text-slate-500 leading-relaxed"></p>
                 </div>
                 <button id="btnPronounceBack" class="p-1.5 text-indigo-600 hover:bg-white rounded-md shrink-0 transition" title="朗讀例句 (Enter)">
                   <i data-lucide="volume-2" class="w-4 h-4"></i>
@@ -194,9 +195,7 @@
             <i data-lucide="book" class="w-3.5 h-3.5 text-indigo-600"></i>
             <span>課本 (4 課：3 Lessons + 1 Review)</span>
           </div>
-          <div id="listTextbookUnits" class="grid grid-cols-2 gap-2">
-            <!-- 動態生成課本單元 -->
-          </div>
+          <div id="listTextbookUnits" class="grid grid-cols-2 gap-2"></div>
         </div>
 
         <!-- 雜誌分區 -->
@@ -205,9 +204,7 @@
             <i data-lucide="newspaper" class="w-3.5 h-3.5 text-emerald-600"></i>
             <span>雜誌 (單元 Units)</span>
           </div>
-          <div id="listMagazineUnits" class="grid grid-cols-2 gap-2">
-            <!-- 動態生成雜誌單元 -->
-          </div>
+          <div id="listMagazineUnits" class="grid grid-cols-2 gap-2"></div>
         </div>
       </div>
 
@@ -263,14 +260,6 @@
         <p><strong>空白鍵 (Space)</strong>：翻轉卡片正面/背面。</p>
         <p><strong>Enter 鍵</strong>：朗讀當前正面單字或背面例句。</p>
         <p><strong>數字鍵 1 ~ 4</strong>：分別對應 Again、Hard、Good、Easy 分類按鈕。</p>
-        <hr class="border-slate-100 my-2">
-        <p class="font-semibold text-slate-700">SRS 間隔重複機制：</p>
-        <ul class="list-disc pl-4 space-y-1 text-[11px]">
-          <li><strong>Again</strong>：排入剩下單字的第 2 個位置（立刻再次複習）。</li>
-          <li><strong>Hard</strong>：排入剩下單字的中間位置。</li>
-          <li><strong>Good</strong>：排入隊列最末端。</li>
-          <li><strong>Easy</strong>：直接從本次練習中移除。</li>
-        </ul>
       </div>
       <button onclick="toggleModal('infoModal', false)" class="w-full py-2 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-200">
         我知道了
@@ -280,137 +269,101 @@
 
   <script>
     /* =========================================================
-       1. 資料結構與預設範例庫 (第二次段考：課本 4 課 + 雜誌單元)
+       1. 標準 RFC 4180 CSV 解析器 (能正確處理引號內的換行)
        ========================================================= */
-    const defaultData = {
-      // 課本 (3 lessons + 1 review)
-      "Lesson 4": [
-        { word: "sustainable", type: "textbook", unit: "Lesson 4", pos: "adj.", meaning: "永續的；可持續的", forms: "sustainability (n.)", collocation: "sustainable development 永續發展", sentenceEn: "Solar energy is an efficient and sustainable source of power.", sentenceZh: "太陽能是一種高效率且永續的能源來源。" },
-        { word: "conserve", type: "textbook", unit: "Lesson 4", pos: "v.", meaning: "節約；保存", forms: "conservation (n.)", collocation: "conserve natural resources 節約自然資源", sentenceEn: "We must conserve fresh water during the severe summer drought.", sentenceZh: "我們必須在嚴峻的夏季乾旱期間節約淡水。" }
-      ],
-      "Lesson 5": [
-        { word: "collaborate", type: "textbook", unit: "Lesson 5", pos: "v.", meaning: "合作；協作", forms: "collaboration (n.)", collocation: "collaborate with partners 與夥伴合作", sentenceEn: "Engineers collaborated with designers to build the new app.", sentenceZh: "工程師與設計師攜手合作開發這款新應用程式。" }
-      ],
-      "Lesson 6": [
-        { word: "perspective", type: "textbook", unit: "Lesson 6", pos: "n.", meaning: "觀點；角度", forms: "", collocation: "from a broader perspective 從更廣的角度看", sentenceEn: "Traveling abroad offers a fresh perspective on international cultures.", sentenceZh: "出國旅行能為理解各國文化提供嶄新的視角。" }
-      ],
-      "Review 2": [
-        { word: "fundamental", type: "textbook", unit: "Review 2", pos: "adj.", meaning: "根本的；基礎的", forms: "fundamentally (adv.)", collocation: "fundamental rights 基本權利", sentenceEn: "Education plays a fundamental role in personal development.", sentenceZh: "教育在個人發展歷程中扮演了關鍵根本的角色。" }
-      ],
-      // 雜誌 (Unit 8 ~ 13)
-      "Unit 8": [
-        { word: "arrive", type: "magazine", unit: "Unit 8", pos: "v.", meaning: "到達、抵達", forms: "arrival (n.) 到達", collocation: "arrive at the airport 到達機場", sentenceEn: "We arrived at the hotel very late at night.", sentenceZh: "我們在深夜很晚才到達飯店。" },
-        { word: "depart", type: "magazine", unit: "Unit 8", pos: "v.", meaning: "起程；出發", forms: "departure (n.)", collocation: "depart for Tokyo 出發前往東京", sentenceEn: "The flight is scheduled to depart at dawn.", sentenceZh: "班機預定在黎明破曉時分起飛。" }
-      ],
-      "Unit 9": [
-        { word: "negotiate", type: "magazine", unit: "Unit 9", pos: "v.", meaning: "談判；協商", forms: "negotiation (n.)", collocation: "negotiate a contract 談判合約條款", sentenceEn: "The representatives negotiated terms for over three weeks.", sentenceZh: "雙方代表就合約條款進行了三個多星期的協商。" }
-      ],
-      "Unit 10": [
-        { word: "innovate", type: "magazine", unit: "Unit 10", pos: "v.", meaning: "創新；革新", forms: "innovation (n.)", collocation: "innovate new technologies 研發創新技術", sentenceEn: "Tech companies must constantly innovate to remain competitive.", sentenceZh: "科技公司必須不斷推陳出新才能維持市場競爭力。" }
-      ],
-      "Unit 11": [
-        { word: "resilient", type: "magazine", unit: "Unit 11", pos: "v.", meaning: "具韌性的；有適應力的", forms: "resilience (n.)", collocation: "resilient supply chain 具韌性的供應鏈", sentenceEn: "Local ecosystems proved surprisingly resilient after the flood.", sentenceZh: "當地的生態系統在洪災過後展現出驚人的復原韌性。" }
-      ],
-      "Unit 12": [
-        { word: "regulate", type: "magazine", unit: "Unit 12", pos: "v.", meaning: "管理；規範", forms: "regulation (n.)", collocation: "regulate markets 規範市場秩序", sentenceEn: "Strict laws are enacted to regulate digital privacy protection.", sentenceZh: "當局制定了嚴格的法規來規範數位個人隱私保護。" }
-      ],
-      "Unit 13": [
-        { word: "comprehend", type: "magazine", unit: "Unit 13", pos: "v.", meaning: "理解；領會", forms: "comprehension (n.)", collocation: "comprehend complex theories 深入理解複雜理論", sentenceEn: "Students strive to comprehend the core principles of quantum physics.", sentenceZh: "學生們努力理解量子物理的核心基礎原理。" }
-      ]
-    };
+    function parseCSVRobust(text) {
+      const rows = [];
+      let currentRow = [];
+      let currentField = '';
+      let insideQuotes = false;
 
-    let allUnitsData = JSON.parse(JSON.stringify(defaultData));
-    let selectedUnitKeys = new Set(["Lesson 4", "Review 2", "Unit 8"]); // 預設勾選範圍
-    let queue = [];
-    let initialCount = 0;
-    let isFlipped = false;
-    let currentVoice = null;
-    let srsStats = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
-    let currentSourceTab = "all";
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            currentField += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === ',' && !insideQuotes) {
+          currentRow.push(currentField);
+          currentField = '';
+        } else if ((char === '\r' || char === '\n') && !insideQuotes) {
+          if (char === '\r' && nextChar === '\n') i++;
+          currentRow.push(currentField);
+          if (currentRow.some(col => col.trim() !== '')) {
+            rows.push(currentRow);
+          }
+          currentRow = [];
+          currentField = '';
+        } else {
+          currentField += char;
+        }
+      }
+      if (currentField !== '' || currentRow.length > 0) {
+        currentRow.push(currentField);
+        if (currentRow.some(col => col.trim() !== '')) {
+          rows.push(currentRow);
+        }
+      }
+      return rows;
+    }
 
     /* =========================================================
-       2. 外部 CSV 自動偵測載入 (課本 4 檔 + 雜誌 Unit 檔)
+       2. 單字解析器：深度解析【詞性變化】、【搭配詞】、【例句】
        ========================================================= */
-    async function loadExternalCSVs() {
-      const filesToFetch = [
-        { name: "Lesson 4", type: "textbook", url: "lesson4.csv" },
-        { name: "Lesson 5", type: "textbook", url: "lesson5.csv" },
-        { name: "Lesson 6", type: "textbook", url: "lesson6.csv" },
-        { name: "Review 2", type: "textbook", url: "review2.csv" },
-        { name: "Unit 8", type: "magazine", url: "unit8.csv" },
-        { name: "Unit 9", type: "magazine", url: "unit9.csv" },
-        { name: "Unit 10", type: "magazine", url: "unit10.csv" },
-        { name: "Unit 11", type: "magazine", url: "unit11.csv" },
-        { name: "Unit 12", type: "magazine", url: "unit12.csv" },
-        { name: "Unit 13", type: "magazine", url: "unit13.csv" }
-      ];
-
-      for (const item of filesToFetch) {
-        try {
-          const res = await fetch(item.url);
-          if (res.ok) {
-            const csvText = await res.text();
-            const parsed = parseTwoColumnCSV(csvText, item.name, item.type);
-            if (parsed.length > 0) {
-              allUnitsData[item.name] = parsed;
-            }
-          }
-        } catch (e) {
-          // 若為本地預覽或該檔不存在，維持使用 defaultData
-        }
-      }
-      renderScopeUnitList();
-      buildQueueFromSelection();
-    }
-
-    function parseTwoColumnCSV(csvText, unitName, type) {
-      const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== "");
-      const cards = [];
-      for (const line of lines) {
-        let parts = line.split(/,(.*)/s);
-        if (parts.length >= 2) {
-          const word = parts[0].replace(/^["']|["']$/g, '').trim();
-          const detail = parts[1].replace(/^["']|["']$/g, '').trim();
-          if (word && !word.toLowerCase().includes("word") && !word.toLowerCase().includes("單字")) {
-            cards.push(parseDetailToCard(word, detail, unitName, type));
-          }
-        }
-      }
-      return cards;
-    }
-
     function parseDetailToCard(word, detail, unitName, type) {
-      const card = { word, type, unit: unitName, pos: "", meaning: "", forms: "", collocation: "", sentenceEn: "", sentenceZh: "" };
-      const lines = detail.split(/\n+/).map(l => l.trim()).filter(Boolean);
-      let currentSection = "meaning";
+      const card = {
+        word: word.trim(),
+        type: type,
+        unit: unitName,
+        pos: "",
+        meaning: "",
+        forms: [],
+        collocation: [],
+        sentenceEn: "",
+        sentenceZh: ""
+      };
+
+      if (!detail) return card;
+
+      const lines = detail.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      let state = 'first_line';
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        if (line.includes("【詞性變化】") || line.includes("[詞性變化]")) {
-          currentSection = "forms";
+
+        if (line.includes('【詞性變化】') || line.includes('[詞性變化]')) {
+          state = 'forms';
           continue;
-        } else if (line.includes("【搭配詞】") || line.includes("[搭配詞]")) {
-          currentSection = "collocation";
+        } else if (line.includes('【搭配詞】') || line.includes('[搭配詞]')) {
+          state = 'collocation';
           continue;
-        } else if (line.includes("【例句】") || line.includes("[例句]")) {
-          currentSection = "sentence";
+        } else if (line.includes('【例句】') || line.includes('[例句]')) {
+          state = 'sentence';
           continue;
         }
 
-        if (currentSection === "meaning") {
-          const m = line.match(/^(\([a-zA-Z\.\s]+\)|[a-zA-Z\.]+\.?)\s*(.*)$/);
+        if (state === 'first_line') {
+          // 例如: "collector (n.) 收藏家；收集者" 或 "(n.) 收藏家"
+          const m = line.match(/^([a-zA-Z\s\-]+)?\s*(\([a-zA-Z\.\s\/\-]+\)|[a-zA-Z\.]+\.?)\s*(.*)$/);
           if (m) {
-            card.pos = m[1];
-            card.meaning = m[2];
+            card.pos = m[2].trim();
+            card.meaning = m[3].trim();
           } else {
             card.meaning = line;
           }
-        } else if (currentSection === "forms") {
-          card.forms += (card.forms ? " ; " : "") + line;
-        } else if (currentSection === "collocation") {
-          card.collocation += (card.collocation ? " ; " : "") + line;
-        } else if (currentSection === "sentence") {
+          state = 'after_meaning';
+        } else if (state === 'forms') {
+          card.forms.push(line);
+        } else if (state === 'collocation') {
+          card.collocation.push(line);
+        } else if (state === 'sentence') {
           if (!card.sentenceEn) {
+            // 切分英文與括號內的中文翻譯
             const zhMatch = line.match(/^([^\u4e00-\u9fa5]+)([\u4e00-\u9fa5（\(].*)?$/);
             if (zhMatch) {
               card.sentenceEn = zhMatch[1].trim();
@@ -423,17 +376,97 @@
           }
         }
       }
+
       return card;
     }
 
     /* =========================================================
-       3. 範圍挑選面板邏輯 (來源切換 + 課次/單元多選)
+       3. 資料管理與多檔載入
+       ========================================================= */
+    const allUnitsData = {};
+    const selectedUnitKeys = new Set();
+    let queue = [];
+    let initialCount = 0;
+    let isFlipped = false;
+    let currentVoice = null;
+    let srsStats = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
+    let currentSourceTab = "all";
+
+    async function loadAllCSVs() {
+      const filesToFetch = [
+        // 優先嘗試讀取單一全量檔案
+        { name: "Unit 8 之後", type: "magazine", url: "ALL+ unit8之後.csv" },
+        // 課本
+        { name: "Lesson 4", type: "textbook", url: "lesson4.csv" },
+        { name: "Lesson 5", type: "textbook", url: "lesson5.csv" },
+        { name: "Lesson 6", type: "textbook", url: "lesson6.csv" },
+        { name: "Review 2", type: "textbook", url: "review2.csv" },
+        // 雜誌分檔
+        { name: "Unit 8", type: "magazine", url: "unit8.csv" },
+        { name: "Unit 9", type: "magazine", url: "unit9.csv" },
+        { name: "Unit 10", type: "magazine", url: "unit10.csv" },
+        { name: "Unit 11", type: "magazine", url: "unit11.csv" },
+        { name: "Unit 12", type: "magazine", url: "unit12.csv" },
+        { name: "Unit 13", type: "magazine", url: "unit13.csv" }
+      ];
+
+      for (const item of filesToFetch) {
+        try {
+          const res = await fetch(encodeURI(item.url));
+          if (res.ok) {
+            const csvText = await res.text();
+            const rows = parseCSVRobust(csvText);
+            const cards = [];
+            for (let i = 0; i < rows.length; i++) {
+              const row = rows[i];
+              if (row.length >= 2) {
+                const w = row[0].trim();
+                const d = row[1].trim();
+                if (w && w !== "正面" && w.toLowerCase() !== "word") {
+                  cards.push(parseDetailToCard(w, d, item.name, item.type));
+                }
+              }
+            }
+            if (cards.length > 0) {
+              allUnitsData[item.name] = cards;
+            }
+          }
+        } catch (e) {
+          // 忽略讀取失敗檔案
+        }
+      }
+
+      // 若未載入任何檔案，使用內建備援示範資料
+      if (Object.keys(allUnitsData).length === 0) {
+        setupFallbackDemo();
+      }
+
+      // 預設全選已載入的單元
+      Object.keys(allUnitsData).forEach(k => selectedUnitKeys.add(k));
+
+      renderScopeUnitList();
+      buildQueueFromSelection();
+    }
+
+    function setupFallbackDemo() {
+      allUnitsData["Unit 8"] = [
+        parseDetailToCard("collector", "collector (n.) 收藏家；收集者\n【詞性變化】\ncollect (v.) 收集、收藏\ncollection (n.) 收藏品\n【搭配詞】\nart collector 藝術品收藏家\nstamp collector 集郵家\n【例句】\nMy uncle is a coin collector who keeps rare coins in small boxes.(我叔叔是一位硬幣收藏家，他把稀有硬幣放在小盒子裡。)", "Unit 8", "magazine"),
+        parseDetailToCard("antique", "antique (n.) 古董；古物\n【詞性變化】\nantique (adj.) 古老的、古董的\n【搭配詞】\nantique shop 古董店\nantique furniture 古董家具\n【例句】\nMartha found some valuable antiques while cleaning the basement with her grandmother.(瑪莎和奶奶一起打掃地下室時，發現了一些有價值的古董。)", "Unit 8", "magazine"),
+        parseDetailToCard("therapy", "therapy (n.) 治療；療法\n【詞性變化】\ntherapist (n.) 治療師\ntherapeutic (adj.) 有療效的\n【搭配詞】\nphysical therapy 物理治療\nspeech therapy 言語治療\n【例句】\nAfter the accident, Kevin needed therapy to help his injured leg move again.(意外發生後，凱文需要接受治療以協助他受傷的腿恢復活動。)", "Unit 8", "magazine")
+      ];
+      allUnitsData["Lesson 4"] = [
+        parseDetailToCard("sustainable", "sustainable (adj.) 永續的；可持續的\n【詞性變化】\nsustainability (n.) 永續性\n【搭配詞】\nsustainable development 永續發展\n【例句】\nSolar energy is an efficient and sustainable source of power.(太陽能是一種高效率且永續的能源來源。)", "Lesson 4", "textbook")
+      ];
+    }
+
+    /* =========================================================
+       4. 範圍選取面板與渲染
        ========================================================= */
     function renderScopeUnitList() {
-      const textbookContainer = document.getElementById("listTextbookUnits");
-      const magazineContainer = document.getElementById("listMagazineUnits");
-      textbookContainer.innerHTML = "";
-      magazineContainer.innerHTML = "";
+      const tbList = document.getElementById("listTextbookUnits");
+      const magList = document.getElementById("listMagazineUnits");
+      tbList.innerHTML = "";
+      magList.innerHTML = "";
 
       let totalSelectedWords = 0;
 
@@ -441,68 +474,45 @@
         const isChecked = selectedUnitKeys.has(unitName);
         if (isChecked) totalSelectedWords += cards.length;
 
-        const isTextbook = unitName.includes("Lesson") || unitName.includes("Review");
-        const targetContainer = isTextbook ? textbookContainer : magazineContainer;
+        const isTb = unitName.includes("Lesson") || unitName.includes("Review");
+        const target = isTb ? tbList : magList;
 
-        const cardEl = document.createElement("div");
-        cardEl.className = `p-3 rounded-xl border transition cursor-pointer flex items-center justify-between ${
-          isChecked ? 'bg-indigo-50/70 border-indigo-300 ring-1 ring-indigo-200' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+        const item = document.createElement("div");
+        item.className = `p-3 rounded-xl border transition cursor-pointer flex items-center justify-between ${
+          isChecked ? 'bg-indigo-50/80 border-indigo-300 ring-1 ring-indigo-200' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
         }`;
-        cardEl.onclick = () => toggleUnitSelection(unitName);
+        item.onclick = () => {
+          if (selectedUnitKeys.has(unitName)) selectedUnitKeys.delete(unitName);
+          else selectedUnitKeys.add(unitName);
+          renderScopeUnitList();
+        };
 
-        cardEl.innerHTML = `
+        item.innerHTML = `
           <div class="flex items-center space-x-2.5">
-            <input type="checkbox" ${isChecked ? 'checked' : ''} class="w-4 h-4 rounded text-indigo-600 focus:ring-0 pointer-events-none">
+            <input type="checkbox" ${isChecked ? 'checked' : ''} class="w-4 h-4 rounded text-indigo-600 pointer-events-none">
             <div>
               <div class="text-xs font-bold text-slate-800">${unitName}</div>
               <div class="text-[10px] text-slate-500">${cards.length} 個單字</div>
             </div>
           </div>
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${isTextbook ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}">
-            ${isTextbook ? '課本' : '雜誌'}
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${isTb ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}">
+            ${isTb ? '課本' : '雜誌'}
           </span>
         `;
-        targetContainer.appendChild(cardEl);
+        target.appendChild(item);
       }
 
       document.getElementById("selectedCountSummary").innerText = 
         `已勾選 ${selectedUnitKeys.size} 個單元 (共 ${totalSelectedWords} 字)`;
       document.getElementById("scopeButtonText").innerText = 
-        selectedUnitKeys.size > 0 ? `已選 ${selectedUnitKeys.size} 個課次` : "請選擇課次";
-    }
-
-    function toggleUnitSelection(unitName) {
-      if (selectedUnitKeys.has(unitName)) {
-        selectedUnitKeys.delete(unitName);
-      } else {
-        selectedUnitKeys.add(unitName);
-      }
-      renderScopeUnitList();
+        selectedUnitKeys.size > 0 ? `已選 ${selectedUnitKeys.size} 個單元` : "請選擇範圍";
     }
 
     function toggleSelectAll(selectAll) {
       if (selectAll) {
-        for (const key of Object.keys(allUnitsData)) {
-          if (currentSourceTab === "all") {
-            selectedUnitKeys.add(key);
-          } else if (currentSourceTab === "textbook" && (key.includes("Lesson") || key.includes("Review"))) {
-            selectedUnitKeys.add(key);
-          } else if (currentSourceTab === "magazine" && key.includes("Unit")) {
-            selectedUnitKeys.add(key);
-          }
-        }
+        for (const k of Object.keys(allUnitsData)) selectedUnitKeys.add(k);
       } else {
-        if (currentSourceTab === "all") {
-          selectedUnitKeys.clear();
-        } else {
-          for (const key of Object.keys(allUnitsData)) {
-            if (currentSourceTab === "textbook" && (key.includes("Lesson") || key.includes("Review"))) {
-              selectedUnitKeys.delete(key);
-            } else if (currentSourceTab === "magazine" && key.includes("Unit")) {
-              selectedUnitKeys.delete(key);
-            }
-          }
-        }
+        selectedUnitKeys.clear();
       }
       renderScopeUnitList();
     }
@@ -512,36 +522,21 @@
       const tabs = { all: "tabAll", textbook: "tabTextbook", magazine: "tabMagazine" };
       Object.keys(tabs).forEach(t => {
         const el = document.getElementById(tabs[t]);
-        if (t === tab) {
-          el.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition bg-white text-indigo-700 shadow-sm";
-        } else {
-          el.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition";
-        }
+        el.className = t === tab 
+          ? "flex-1 py-1.5 text-xs font-bold rounded-lg transition bg-white text-indigo-700 shadow-sm"
+          : "flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition";
       });
 
-      const secTextbook = document.getElementById("sectionTextbook");
-      const secMagazine = document.getElementById("sectionMagazine");
-      if (tab === "all") {
-        secTextbook.style.display = "block";
-        secMagazine.style.display = "block";
-      } else if (tab === "textbook") {
-        secTextbook.style.display = "block";
-        secMagazine.style.display = "none";
-      } else {
-        secTextbook.style.display = "none";
-        secMagazine.style.display = "block";
-      }
+      document.getElementById("sectionTextbook").style.display = (tab === "magazine") ? "none" : "block";
+      document.getElementById("sectionMagazine").style.display = (tab === "textbook") ? "none" : "block";
     }
 
     function buildQueueFromSelection() {
       queue = [];
       for (const unit of selectedUnitKeys) {
-        if (allUnitsData[unit]) {
-          queue.push(...allUnitsData[unit]);
-        }
+        if (allUnitsData[unit]) queue.push(...allUnitsData[unit]);
       }
-      // 洗牌
-      queue = queue.sort(() => Math.random() - 0.5);
+      queue.sort(() => Math.random() - 0.5);
       initialCount = queue.length;
       srsStats = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
       updateStats();
@@ -549,7 +544,7 @@
     }
 
     /* =========================================================
-       4. 卡片顯示、翻面與圖片預加載
+       5. 卡片內容渲染 (正確呈現 搭配詞 / 詞性 / 變化 / 例句)
        ========================================================= */
     function showCard() {
       if (queue.length === 0) {
@@ -568,44 +563,51 @@
       document.getElementById("cardWord").innerText = card.word;
       document.getElementById("cardSourceTag").innerText = `${card.type === 'textbook' ? '課本' : '雜誌'} · ${card.unit}`;
 
-      // 背面
+      // 背面：詞性與中文
       document.getElementById("cardPos").innerText = card.pos || "";
       document.getElementById("cardMeaning").innerText = card.meaning || "";
 
-      toggleField("boxForms", "cardForms", card.forms);
-      toggleField("boxCollocation", "cardCollocation", card.collocation);
+      // 詞性變化 (分行呈現)
+      const formsBox = document.getElementById("boxForms");
+      const formsContainer = document.getElementById("cardForms");
+      formsContainer.innerHTML = "";
+      if (card.forms && card.forms.length > 0) {
+        card.forms.forEach(f => {
+          const div = document.createElement("div");
+          div.innerText = f;
+          formsContainer.appendChild(div);
+        });
+        formsBox.classList.remove("hidden");
+      } else {
+        formsBox.classList.add("hidden");
+      }
 
+      // 搭配詞 (分行呈現)
+      const collBox = document.getElementById("boxCollocation");
+      const collContainer = document.getElementById("cardCollocation");
+      collContainer.innerHTML = "";
+      if (card.collocation && card.collocation.length > 0) {
+        card.collocation.forEach(c => {
+          const div = document.createElement("div");
+          div.innerText = c;
+          collContainer.appendChild(div);
+        });
+        collBox.classList.remove("hidden");
+      } else {
+        collBox.classList.add("hidden");
+      }
+
+      // 例句
       document.getElementById("cardSentenceEn").innerText = card.sentenceEn || card.word;
       document.getElementById("cardSentenceZh").innerText = card.sentenceZh || "";
 
-      // 圖片載入 (Picsum with seed)
+      // 配圖
       const imgEl = document.getElementById("cardImage");
       imgEl.src = `https://picsum.photos/seed/${encodeURIComponent(card.word)}/600/220`;
-
-      // 預加載接下來 3 張
-      preloadNextImages();
 
       // 自動朗讀正面
       setTimeout(() => pronounce(card.word), 150);
       updateStats();
-    }
-
-    function toggleField(boxId, textId, value) {
-      const box = document.getElementById(boxId);
-      const text = document.getElementById(textId);
-      if (value && value.trim()) {
-        box.classList.remove("hidden");
-        text.innerText = value;
-      } else {
-        box.classList.add("hidden");
-      }
-    }
-
-    function preloadNextImages() {
-      for (let i = 1; i <= 3 && i < queue.length; i++) {
-        const nextImg = new Image();
-        nextImg.src = `https://picsum.photos/seed/${encodeURIComponent(queue[i].word)}/600/220`;
-      }
     }
 
     function setFlipped(flipped) {
@@ -622,7 +624,7 @@
     }
 
     /* =========================================================
-       5. SRS 演算法調度邏輯
+       6. SRS 排程演算法
        ========================================================= */
     function handleSRS(rating) {
       if (queue.length === 0) return;
@@ -638,7 +640,7 @@
       } else if (rating === "Good") {
         queue.push(current);
       } else if (rating === "Easy") {
-        // 從本輪移除
+        // 從本輪練習排除
       }
 
       showCard();
@@ -662,12 +664,12 @@
     }
 
     /* =========================================================
-       6. 美式英語發音系統 (en-US Natural)
+       7. 美式發音系統
        ========================================================= */
     function initVoices() {
       if (!('speechSynthesis' in window)) return;
       const voices = window.speechSynthesis.getVoices();
-      currentVoice = voices.find(v => v.lang.includes("en-US") && (v.name.includes("Jenny") || v.name.includes("Guy") || v.name.includes("Natural") || v.name.includes("Samantha"))) 
+      currentVoice = voices.find(v => v.lang.includes("en-US") && (v.name.includes("Jenny") || v.name.includes("Guy") || v.name.includes("Samantha"))) 
                   || voices.find(v => v.lang === "en-US")
                   || voices.find(v => v.lang.startsWith("en"));
     }
@@ -682,10 +684,10 @@
       window.speechSynthesis.cancel();
       window.speechSynthesis.resume();
 
-      const cleanText = text.replace(/[\u4e00-\u9fa5]/g, '').replace(/[\(\)\[\]（）]/g, '').trim();
-      if (!cleanText) return;
+      const clean = text.replace(/[\u4e00-\u9fa5]/g, '').replace(/[\(\)\[\]（）]/g, '').trim();
+      if (!clean) return;
 
-      const utterance = new SpeechSynthesisUtterance(cleanText);
+      const utterance = new SpeechSynthesisUtterance(clean);
       utterance.lang = "en-US";
       utterance.rate = 0.92;
       if (currentVoice) utterance.voice = currentVoice;
@@ -693,11 +695,11 @@
     }
 
     /* =========================================================
-       7. 鍵盤事件與按鈕監聽
+       8. 生命週期與按鍵綁定
        ========================================================= */
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
-      loadExternalCSVs();
+      loadAllCSVs();
 
       document.getElementById("flashcard").onclick = () => setFlipped(!isFlipped);
       
@@ -716,7 +718,7 @@
       document.getElementById("btnCancelScope").onclick = () => toggleModal("scopeModal", false);
       document.getElementById("btnApplyScope").onclick = () => {
         if (selectedUnitKeys.size === 0) {
-          alert("請至少選擇一個課次或單元！");
+          alert("請至少勾選一個單元！");
           return;
         }
         toggleModal("scopeModal", false);
@@ -725,7 +727,6 @@
 
       document.getElementById("btnInfoModal").onclick = () => toggleModal("infoModal", true);
 
-      // 快捷鍵
       window.addEventListener("keydown", (e) => {
         if (e.target.tagName === "INPUT") return;
         if (e.code === "Space") {
