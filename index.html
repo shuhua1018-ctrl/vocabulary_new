@@ -59,7 +59,7 @@
     </div>
 
     <!-- 3D 翻轉字卡 -->
-    <div class="relative w-full h-[450px] perspective-1000">
+    <div class="relative w-full h-[500px] perspective-1000">
       <div id="flashcard" class="w-full h-full relative transform-style-3d transition-transform duration-500 cursor-pointer shadow-md rounded-2xl bg-white border border-slate-200">
         
         <!-- 正面 -->
@@ -84,44 +84,56 @@
         </div>
 
         <!-- 背面 -->
-        <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col p-5 bg-white rounded-2xl overflow-hidden justify-between">
+        <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col p-5 bg-white rounded-2xl justify-between overflow-hidden">
           <div class="flex-1 flex flex-col overflow-hidden">
-            <div class="w-full h-28 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative mb-3 border border-slate-100">
+            <!-- 語意照片 (高度調整為舒適比例 96px) -->
+            <div class="w-full h-24 bg-slate-100 rounded-xl overflow-hidden shrink-0 relative mb-4 border border-slate-200 shadow-sm">
               <img id="cardImage" src="" alt="Vocabulary Image" class="w-full h-full object-cover">
             </div>
 
-            <div class="space-y-1.5 text-left text-sm flex-1 overflow-y-auto pr-1">
-              <div class="flex items-baseline gap-2">
-                <span id="cardPos" class="font-bold text-indigo-600 italic"></span>
-                <span id="cardMeaning" class="font-semibold text-slate-800 text-base"></span>
+            <!-- 單字解析內容區塊 (增加留白，使用柔和區塊設計) -->
+            <div class="space-y-3 text-left flex-1 flex flex-col overflow-y-auto pr-1 pb-1">
+              
+              <!-- 單字詞性與中文釋義 -->
+              <div class="flex items-baseline gap-2 pb-1.5 border-b border-slate-100">
+                <span id="cardPos" class="font-bold text-indigo-600 italic text-sm"></span>
+                <span id="cardMeaning" class="font-bold text-slate-800 text-[15px]"></span>
               </div>
 
-           <div id="boxForms" class="text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100 hidden whitespace-pre-line">
-  <span class="font-bold text-slate-700">【詞性變化】</span>
-  <div id="cardForms" class="mt-0.5"></div>
-</div>
-
-<div id="boxCollocation" class="text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100 hidden whitespace-pre-line">
-  <span class="font-bold text-slate-700">【搭配詞】</span>
-  <div id="cardCollocation" class="mt-0.5"></div>
-</div>
-
-              <div id="boxSentence" class="bg-indigo-50/60 p-2 rounded-lg border border-indigo-100 flex items-start justify-between gap-2">
-                <div class="text-xs space-y-0.5">
-                  <div class="font-bold text-indigo-950 flex items-center gap-1">
-                    <span>【例句】</span>
-                  </div>
-                  <p id="cardSentenceEn" class="text-slate-800 font-medium"></p>
-                  <p id="cardSentenceZh" class="text-slate-500"></p>
+              <!-- 詞性變化 (結構化設計) -->
+              <div id="boxForms" class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 hidden">
+                <div class="text-[11px] font-bold text-slate-500 mb-1 flex items-center gap-1.5">
+                  <i data-lucide="layers" class="w-3.5 h-3.5"></i>詞性變化
                 </div>
-                <button id="btnPronounceBack" class="p-1.5 text-indigo-600 hover:bg-white rounded-md shrink-0 transition" title="朗讀例句 (Enter)">
-                  <i data-lucide="volume-2" class="w-4 h-4"></i>
-                </button>
+                <div id="cardForms" class="text-[13px] leading-relaxed text-slate-700 whitespace-pre-line font-medium"></div>
               </div>
+
+              <!-- 搭配詞 (結構化設計) -->
+              <div id="boxCollocation" class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 hidden">
+                <div class="text-[11px] font-bold text-slate-500 mb-1 flex items-center gap-1.5">
+                  <i data-lucide="link" class="w-3.5 h-3.5"></i>搭配詞
+                </div>
+                <div id="cardCollocation" class="text-[13px] leading-relaxed text-slate-700 whitespace-pre-line font-medium"></div>
+              </div>
+
+              <!-- 例句 (高對比主題色設計) -->
+              <div id="boxSentence" class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 flex flex-col gap-1.5 hidden shadow-sm">
+                <div class="flex items-center justify-between">
+                  <div class="text-[11px] font-bold text-indigo-800 flex items-center gap-1.5">
+                    <i data-lucide="message-square-quote" class="w-3.5 h-3.5"></i>例句
+                  </div>
+                  <button id="btnPronounceBack" class="p-1.5 text-indigo-600 hover:bg-white rounded-lg shrink-0 transition bg-indigo-100/50 shadow-sm" title="朗讀例句 (Enter)">
+                    <i data-lucide="volume-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <div id="cardSentence" class="text-[13px] text-slate-800 font-medium leading-relaxed whitespace-pre-line"></div>
+              </div>
+
             </div>
           </div>
 
-          <div class="pt-2 text-center text-[11px] text-slate-400">
+          <!-- 底部翻轉提示 -->
+          <div class="pt-3 text-center text-[11px] text-slate-400 shrink-0 border-t border-slate-50 mt-1">
             點擊卡片翻回正面
           </div>
         </div>
@@ -186,7 +198,6 @@
 
       <!-- 第二層：課次 / 單元清單 -->
       <div class="flex-1 overflow-y-auto mt-2 space-y-4 pr-1">
-        
         <!-- 課本分區 -->
         <div id="sectionTextbook" class="space-y-2">
           <div class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
@@ -276,61 +287,60 @@
 
   <script>
     /* =========================================================
-       1. 預設單字庫 (課本 4 課 + 2026/10 雜誌 + 2026/11 雜誌)
+       1. 預設示範資料庫 (雙欄解析與上一版格式 100% 一致)
        ========================================================= */
     const defaultData = {
-      // 課本
       "Lesson 4": [
-        { word: "sustainable", group: "textbook", groupLabel: "課本", unit: "Lesson 4", pos: "adj.", meaning: "永續的；可持續的", forms: "sustainability (n.)", collocation: "sustainable development 永續發展", sentenceEn: "Solar energy is an efficient and sustainable source of power.", sentenceZh: "太陽能是一種高效率且永續的能源來源。" }
+        { word: "sustainable", group: "textbook", groupLabel: "課本", unit: "Lesson 4", pos: "adj.", meaning: "永續的；可持續的", forms: "sustainability (n.) 永續性", collocation: "sustainable development 永續發展\nsustainable future 永續未來", sentence: "Solar energy is an efficient and sustainable source of power.(太陽能是一種高效率且永續的能源來源。)" }
       ],
       "Lesson 5": [
-        { word: "collaborate", group: "textbook", groupLabel: "課本", unit: "Lesson 5", pos: "v.", meaning: "合作；協作", forms: "collaboration (n.)", collocation: "collaborate with partners 與夥伴合作", sentenceEn: "Engineers collaborated with designers to build the new app.", sentenceZh: "工程師與設計師攜手合作開發這款新應用程式。" }
+        { word: "collaborate", group: "textbook", groupLabel: "課本", unit: "Lesson 5", pos: "v.", meaning: "合作；協作", forms: "collaboration (n.) 合作\ncollaborative (adj.) 合作的", collocation: "collaborate with partners 與夥伴合作\ncollaborate on a project 合作專案", sentence: "Engineers collaborated with designers to build the new app.(工程師與設計師攜手合作開發這款新應用程式。)" }
       ],
       "Lesson 6": [
-        { word: "perspective", group: "textbook", groupLabel: "課本", unit: "Lesson 6", pos: "n.", meaning: "觀點；角度", forms: "", collocation: "from a broader perspective 從更廣的角度看", sentenceEn: "Traveling abroad offers a fresh perspective on international cultures.", sentenceZh: "出國旅行能為理解各國文化提供嶄新的視角。" }
+        { word: "perspective", group: "textbook", groupLabel: "課本", unit: "Lesson 6", pos: "n.", meaning: "觀點；角度", forms: "", collocation: "from a broader perspective 從更廣的角度看", sentence: "Traveling abroad offers a fresh perspective on international cultures." }
       ],
       "Review 2": [
-        { word: "fundamental", group: "textbook", groupLabel: "課本", unit: "Review 2", pos: "adj.", meaning: "根本的；基礎的", forms: "fundamentally (adv.)", collocation: "fundamental rights 基本權利", sentenceEn: "Education plays a fundamental role in personal development.", sentenceZh: "教育在個人發展歷程中扮演了關鍵根本的角色。" }
+        { word: "fundamental", group: "textbook", groupLabel: "課本", unit: "Review 2", pos: "adj.", meaning: "根本的；基礎的", forms: "fundamentally (adv.) 根本地", collocation: "fundamental rights 基本權利\nfundamental principles 基本原則", sentence: "Education plays a fundamental role in personal development." }
       ],
 
       // 2026/10 雜誌 (Unit 8 ~ Unit 13)
       "10月 Unit 8": [
-        { word: "arrive", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 8", pos: "v.", meaning: "到達、抵達", forms: "arrival (n.) 到達", collocation: "arrive at the airport 到達機場", sentenceEn: "We arrived at the hotel very late at night.", sentenceZh: "我們在深夜很晚才到達飯店。" }
+        { word: "arrive", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 8", pos: "v.", meaning: "到達、抵達", forms: "arrival (n.) 到達、抵達", collocation: "arrive at the airport 到達機場\narrive in London 到達倫敦", sentence: "We arrived at the hotel very late at night.(我們在深夜很晚才到達飯店。)" }
       ],
       "10月 Unit 9": [
-        { word: "negotiate", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 9", pos: "v.", meaning: "談判；協商", forms: "negotiation (n.)", collocation: "negotiate a contract 談判合約條款", sentenceEn: "The representatives negotiated terms for over three weeks.", sentenceZh: "雙方代表就合約條款進行了三個多星期的協商。" }
+        { word: "negotiate", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 9", pos: "v.", meaning: "談判；協商", forms: "negotiation (n.) 談判\nnegotiator (n.) 談判代表", collocation: "negotiate a contract 談判合約\nnegotiate with clients 與客戶談判", sentence: "The representatives negotiated terms for over three weeks." }
       ],
       "10月 Unit 10": [
-        { word: "innovate", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 10", pos: "v.", meaning: "創新；革新", forms: "innovation (n.)", collocation: "innovate new technologies 研發創新技術", sentenceEn: "Tech companies must constantly innovate to remain competitive.", sentenceZh: "科技公司必須不斷推陳出新才能維持市場競爭力。" }
+        { word: "innovate", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 10", pos: "v.", meaning: "創新；革新", forms: "innovation (n.) 創新\ninnovative (adj.) 創新的", collocation: "innovate new technologies 研發創新技術", sentence: "Tech companies must constantly innovate to remain competitive." }
       ],
       "10月 Unit 11": [
-        { word: "resilient", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 11", pos: "v.", meaning: "具韌性的；有適應力的", forms: "resilience (n.)", collocation: "resilient supply chain 具韌性的供應鏈", sentenceEn: "Local ecosystems proved surprisingly resilient after the flood.", sentenceZh: "當地的生態系統在洪災過後展現出驚人的復原韌性。" }
+        { word: "resilient", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 11", pos: "adj.", meaning: "具韌性的；有適應力的", forms: "resilience (n.) 韌性", collocation: "resilient supply chain 具韌性的供應鏈\nresilient economy 具韌性的經濟", sentence: "Local ecosystems proved surprisingly resilient after the flood." }
       ],
       "10月 Unit 12": [
-        { word: "regulate", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 12", pos: "v.", meaning: "管理；規範", forms: "regulation (n.)", collocation: "regulate markets 規範市場秩序", sentenceEn: "Strict laws are enacted to regulate digital privacy protection.", sentenceZh: "當局制定了嚴格的法規來規範數位個人隱私保護。" }
+        { word: "regulate", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 12", pos: "v.", meaning: "管理；規範", forms: "regulation (n.) 法規\nregulatory (adj.) 監管的", collocation: "regulate markets 規範市場秩序", sentence: "Strict laws are enacted to regulate digital privacy protection." }
       ],
       "10月 Unit 13": [
-        { word: "comprehend", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 13", pos: "v.", meaning: "理解；領會", forms: "comprehension (n.)", collocation: "comprehend complex theories 深入理解複雜理論", sentenceEn: "Students strive to comprehend the core principles of quantum physics.", sentenceZh: "學生們努力理解量子物理的核心基礎原理。" }
+        { word: "comprehend", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 13", pos: "v.", meaning: "理解；領會", forms: "comprehension (n.) 理解力\ncomprehensive (adj.) 全面的", collocation: "comprehend complex theories 深入理解複雜理論", sentence: "Students strive to comprehend the core principles of quantum physics." }
       ],
 
       // 2026/11 雜誌 (Unit 1 ~ Unit 6)
       "11月 Unit 1": [
-        { word: "allocate", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 1", pos: "v.", meaning: "分配；配置", forms: "allocation (n.)", collocation: "allocate budget 配發預算", sentenceEn: "The committee allocated sufficient resources to the research lab.", sentenceZh: "委員會分配了充足的資源給該研究實驗室。" }
+        { word: "allocate", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 1", pos: "v.", meaning: "分配；配置", forms: "allocation (n.) 分配", collocation: "allocate budget 配發預算\nallocate resources 分配資源", sentence: "The committee allocated sufficient resources to the research lab." }
       ],
       "11月 Unit 2": [
-        { word: "transform", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 2", pos: "v.", meaning: "改變；轉型", forms: "transformation (n.)", collocation: "transform the industry 翻轉產業生態", sentenceEn: "Artificial intelligence has transformed modern education models.", sentenceZh: "人工智慧已經徹底翻轉了現代的教育模式。" }
+        { word: "transform", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 2", pos: "v.", meaning: "改變；轉型", forms: "transformation (n.) 轉型\ntransformative (adj.) 變革性的", collocation: "transform the industry 翻轉產業生態", sentence: "Artificial intelligence has transformed modern education models." }
       ],
       "11月 Unit 3": [
-        { word: "benchmark", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 3", pos: "n.", meaning: "基準；標竿", forms: "", collocation: "set a new benchmark 樹立新標竿", sentenceEn: "The company's green policy sets a benchmark for competitors.", sentenceZh: "這間公司的綠能政策為同業競爭者樹立了嶄新標竿。" }
+        { word: "benchmark", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 3", pos: "n.", meaning: "基準；標竿", forms: "", collocation: "set a new benchmark 樹立新標竿", sentence: "The company's green policy sets a benchmark for competitors." }
       ],
       "11月 Unit 4": [
-        { word: "advocate", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 4", pos: "v.", meaning: "提倡；主張", forms: "advocate (n.) 提倡者", collocation: "advocate for change 提倡變革", sentenceEn: "Activists advocate for clean renewable energy solutions.", sentenceZh: "環保人士大力提倡乾淨的再生能源解決方案。" }
+        { word: "advocate", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 4", pos: "v.", meaning: "提倡；主張", forms: "advocate (n.) 提倡者\nadvocacy (n.) 擁護", collocation: "advocate for change 提倡變革", sentence: "Activists advocate for clean renewable energy solutions." }
       ],
       "11月 Unit 5": [
-        { word: "coincide", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 5", pos: "v.", meaning: "同時發生；巧合", forms: "coincidence (n.)", collocation: "coincide with the release 與發布時間巧合吻合", sentenceEn: "The launch was timed to coincide with the tech conference.", sentenceZh: "這次產品發表會特別選在與科技高峰會同時舉行。" }
+        { word: "coincide", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 5", pos: "v.", meaning: "同時發生；巧合", forms: "coincidence (n.) 巧合\ncoincident (adj.) 符合的", collocation: "coincide with the release 與發布時間吻合", sentence: "The launch was timed to coincide with the tech conference." }
       ],
       "11月 Unit 6": [
-        { word: "facilitate", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 6", pos: "v.", meaning: "促進；使便利", forms: "facilitator (n.)", collocation: "facilitate communication 促進溝通", sentenceEn: "Digital tools facilitate remote work across international branches.", sentenceZh: "數位協作工具促進了跨國分部間的遠距工作效率。" }
+        { word: "facilitate", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 6", pos: "v.", meaning: "促進；使便利", forms: "facilitator (n.) 協調人\nfacilitation (n.) 促進", collocation: "facilitate communication 促進溝通\nfacilitate trade 促進貿易", sentence: "Digital tools facilitate remote work across international branches." }
       ]
     };
 
@@ -344,7 +354,7 @@
     let currentSourceTab = "all";
 
     /* =========================================================
-       2. 外部 CSV 自動偵測載入 (支援 10月與 11月各自 CSV)
+       2. 正統 CSV 分割器 (支援引號跨行) + 上一版強效第二欄狀態機
        ========================================================= */
     async function loadExternalCSVs() {
       const filesToFetch = [
@@ -354,7 +364,7 @@
         { key: "Lesson 6", group: "textbook", groupLabel: "課本", unit: "Lesson 6", urls: ["lesson6.csv"] },
         { key: "Review 2", group: "textbook", groupLabel: "課本", unit: "Review 2", urls: ["review2.csv"] },
         
-        // 2026/10 雜誌 (支援 oct_unit8.csv 或 unit8.csv)
+        // 2026/10 雜誌
         { key: "10月 Unit 8", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 8", urls: ["oct_unit8.csv", "unit8.csv"] },
         { key: "10月 Unit 9", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 9", urls: ["oct_unit9.csv", "unit9.csv"] },
         { key: "10月 Unit 10", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 10", urls: ["oct_unit10.csv", "unit10.csv"] },
@@ -362,7 +372,7 @@
         { key: "10月 Unit 12", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 12", urls: ["oct_unit12.csv", "unit12.csv"] },
         { key: "10月 Unit 13", group: "magOct", groupLabel: "2026/10 雜誌", unit: "Unit 13", urls: ["oct_unit13.csv", "unit13.csv"] },
 
-        // 2026/11 雜誌 (支援 nov_unit1.csv 或 unit1.csv)
+        // 2026/11 雜誌
         { key: "11月 Unit 1", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 1", urls: ["nov_unit1.csv", "unit1.csv"] },
         { key: "11月 Unit 2", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 2", urls: ["nov_unit2.csv", "unit2.csv"] },
         { key: "11月 Unit 3", group: "magNov", groupLabel: "2026/11 雜誌", unit: "Unit 3", urls: ["nov_unit3.csv", "unit3.csv"] },
@@ -374,17 +384,17 @@
       for (const item of filesToFetch) {
         for (const url of item.urls) {
           try {
-            const res = await fetch(url);
+            const res = await fetch(url, { cache: "no-cache" });
             if (res.ok) {
               const csvText = await res.text();
-              const parsed = parseTwoColumnCSV(csvText, item.key, item.group, item.groupLabel, item.unit);
+              const parsed = parseRawCSVToCards(csvText, item.key, item.group, item.groupLabel, item.unit);
               if (parsed.length > 0) {
                 allUnitsData[item.key] = parsed;
-                break; // 成功讀取即跳過備援名稱
+                break;
               }
             }
           } catch (e) {
-            // 維持 defaultData
+            // 本機跨域或檔案尚未就緒時維持 defaultData
           }
         }
       }
@@ -392,71 +402,166 @@
       buildQueueFromSelection();
     }
 
-    function parseTwoColumnCSV(csvText, key, group, groupLabel, unit) {
-      const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== "");
-      const cards = [];
-      for (const line of lines) {
-        let parts = line.split(/,(.*)/s);
-        if (parts.length >= 2) {
-          const word = parts[0].replace(/^["']|["']$/g, '').trim();
-          const detail = parts[1].replace(/^["']|["']$/g, '').trim();
-          if (word && !word.toLowerCase().includes("word") && !word.toLowerCase().includes("單字")) {
-            cards.push(parseDetailToCard(word, detail, key, group, groupLabel, unit));
+    // 正確切分包含換行的 CSV 檔案
+    function parseRawCSVToCards(text, key, group, groupLabel, unit) {
+      const rows = [];
+      let currentRow = [];
+      let currentField = '';
+      let insideQuotes = false;
+
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            currentField += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
           }
+        } else if (char === ',' && !insideQuotes) {
+          currentRow.push(currentField.trim());
+          currentField = '';
+        } else if ((char === '\r' || char === '\n') && !insideQuotes) {
+          if (char === '\r' && nextChar === '\n') i++;
+          currentRow.push(currentField.trim());
+          if (currentRow.some(col => col.length > 0)) {
+            rows.push(currentRow);
+          }
+          currentRow = [];
+          currentField = '';
+        } else {
+          currentField += char;
         }
       }
-      return cards;
+      if (currentField.length > 0 || currentRow.length > 0) {
+        currentRow.push(currentField.trim());
+        if (currentRow.some(col => col.length > 0)) rows.push(currentRow);
+      }
+
+      const cardList = [];
+      let startIndex = 0;
+      if (rows.length > 0 && ['word', '單字', 'voc', 'vocabulary', 'front'].includes(rows[0][0].toLowerCase())) {
+        startIndex = 1;
+      }
+
+      for (let i = startIndex; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length === 0) continue;
+        const word = (row[0] || '').trim();
+        const details = (row[1] || '').trim();
+        if (!word) continue;
+
+        // 調用上一版驗證成功的解析核心
+        const parsed = parseSecondColumnRobust(details);
+
+        cardList.push({
+          word,
+          key,
+          group,
+          groupLabel,
+          unit,
+          pos: parsed.pos,
+          meaning: parsed.translation,
+          forms: parsed.forms,
+          collocation: parsed.collocation,
+          sentence: parsed.sentence
+        });
+      }
+
+      return cardList;
     }
 
-    function parseDetailToCard(word, detail, key, group, groupLabel, unit) {
-      const card = { word, key, group, groupLabel, unit, pos: "", meaning: "", forms: "", collocation: "", sentenceEn: "", sentenceZh: "" };
-      const lines = detail.split(/\n+/).map(l => l.trim()).filter(Boolean);
-      let currentSection = "meaning";
+    // 上一版能完整抓出「詞性變化」與「搭配詞」的核心狀態機（已強化冒號與同行支援）
+    function parseSecondColumnRobust(rawDetails) {
+      const result = {
+        pos: '',
+        translation: '',
+        forms: '',
+        collocation: '',
+        sentence: ''
+      };
+
+      if (!rawDetails) return result;
+
+      const lines = rawDetails.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      let currentSection = null;
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        if (line.includes("【詞性變化】") || line.includes("[詞性變化]")) {
-          currentSection = "forms";
+
+        // 1. 比對【詞性變化】/ 衍生字 (支援各種括號與冒號)
+        if (/^[【\[\(\s]*(詞性變化|變化|衍生字|forms?|derivative)[】\]\)\s]*[:：]?/i.test(line)) {
+          currentSection = 'forms';
+          const val = line.replace(/^[【\[\(\s]*(詞性變化|變化|衍生字|forms?|derivative)[】\]\)\s]*[:：]?/i, '').trim();
+          if (val) result.forms = result.forms ? (result.forms + '\n' + val) : val;
           continue;
-        } else if (line.includes("【搭配詞】") || line.includes("[搭配詞]")) {
-          currentSection = "collocation";
-          continue;
-        } else if (line.includes("【例句】") || line.includes("[例句]")) {
-          currentSection = "sentence";
+        }
+        
+        // 2. 比對【搭配詞】/ 片語 (支援各種括號與冒號)
+        if (/^[【\[\(\s]*(搭配詞|搭配|collocations?|phrases?)[】\]\)\s]*[:：]?/i.test(line)) {
+          currentSection = 'collocation';
+          const val = line.replace(/^[【\[\(\s]*(搭配詞|搭配|collocations?|phrases?)[】\]\)\s]*[:：]?/i, '').trim();
+          if (val) result.collocation = result.collocation ? (result.collocation + '\n' + val) : val;
           continue;
         }
 
-        if (currentSection === "meaning") {
-          const m = line.match(/^(\([a-zA-Z\.\s]+\)|[a-zA-Z\.]+\.?)\s*(.*)$/);
-          if (m) {
-            card.pos = m[1];
-            card.meaning = m[2];
-          } else {
-            card.meaning = line;
+        // 3. 比對【例句】
+        if (/^[【\[\(\s]*(例句|example|sentences?)[】\]\)\s]*[:：]?/i.test(line)) {
+          currentSection = 'sentence';
+          const val = line.replace(/^[【\[\(\s]*(例句|example|sentences?)[】\]\)\s]*[:：]?/i, '').trim();
+          if (val) result.sentence = result.sentence ? (result.sentence + '\n' + val) : val;
+          continue;
+        }
+
+        // 4. 明確標示【詞性】或【中文】
+        if (/^[【\[\s]*(詞性|pos)[】\]\s]*[:：]/i.test(line)) {
+          currentSection = 'pos';
+          result.pos = line.replace(/^[【\[\s]*(詞性|pos)[】\]\s]*[:：]/i, '').trim();
+          continue;
+        }
+        if (/^[【\[\s]*(中文|翻譯|中文翻譯|meaning)[】\]\s]*[:：]/i.test(line)) {
+          currentSection = 'translation';
+          result.translation = line.replace(/^[【\[\s]*(中文|翻譯|中文翻譯|meaning)[】\]\s]*[:：]/i, '').trim();
+          continue;
+        }
+
+        // 5. 若在當前區塊中，持續累積多行內容
+        if (currentSection) {
+          if (currentSection === 'forms') {
+            result.forms = result.forms ? (result.forms + '\n' + line) : line;
+          } else if (currentSection === 'collocation') {
+            result.collocation = result.collocation ? (result.collocation + '\n' + line) : line;
+          } else if (currentSection === 'sentence') {
+            result.sentence = result.sentence ? (result.sentence + '\n' + line) : line;
+          } else if (currentSection === 'translation') {
+            result.translation = result.translation ? (result.translation + ' ' + line) : line;
           }
-        } else if (currentSection === "forms") {
-          card.forms += (card.forms ? " ; " : "") + line;
-        } else if (currentSection === "collocation") {
-          card.collocation += (card.collocation ? " ; " : "") + line;
-        } else if (currentSection === "sentence") {
-          if (!card.sentenceEn) {
-            const zhMatch = line.match(/^([^\u4e00-\u9fa5]+)([\u4e00-\u9fa5（\(].*)?$/);
-            if (zhMatch) {
-              card.sentenceEn = zhMatch[1].trim();
-              card.sentenceZh = (zhMatch[2] || "").replace(/^[（\(]|[）\)]$/g, '').trim();
-            } else {
-              card.sentenceEn = line;
-            }
-          } else if (!card.sentenceZh) {
-            card.sentenceZh = line.replace(/^[（\(]|[）\)]$/g, '').trim();
-          }
+          continue;
+        }
+
+        // 6. 初始行：自動提取詞性與翻譯 (例如: (v.) 到達、抵達 或 [n.] 蘋果)
+        const posMatch = line.match(/(?:\b[a-zA-Z]+\s+)?\(([a-zA-Z]+\.?)\)\s*(.*)/) || line.match(/^\[([a-zA-Z]+\.?)\]\s*(.*)/);
+        if (posMatch) {
+          if (!result.pos) result.pos = posMatch[1].trim();
+          if (!result.translation && posMatch[2]) result.translation = posMatch[2].trim();
+          continue;
+        }
+
+        // 預設填入翻譯
+        if (!result.translation) {
+          result.translation = line;
         }
       }
-      return card;
+
+      return result;
     }
 
     /* =========================================================
-       3. 範圍挑選面板邏輯 (課本 / 10月雜誌 / 11月雜誌)
+       3. 範圍挑選面板邏輯
        ========================================================= */
     function renderScopeUnitList() {
       const textbookContainer = document.getElementById("listTextbookUnits");
@@ -585,7 +690,7 @@
       setFlipped(false);
       const card = queue[0];
 
-      // 正面標籤顏色依來源區分
+      // 正面標籤顏色
       const tagEl = document.getElementById("cardSourceTag");
       tagEl.innerText = `${card.groupLabel} · ${card.unit}`;
       if (card.group === "textbook") {
@@ -600,11 +705,10 @@
       document.getElementById("cardPos").innerText = card.pos || "";
       document.getElementById("cardMeaning").innerText = card.meaning || "";
 
+      // 精準判定並展開【詞性變化】與【搭配詞】
       toggleField("boxForms", "cardForms", card.forms);
       toggleField("boxCollocation", "cardCollocation", card.collocation);
-
-      document.getElementById("cardSentenceEn").innerText = card.sentenceEn || card.word;
-      document.getElementById("cardSentenceZh").innerText = card.sentenceZh || "";
+      toggleField("boxSentence", "cardSentence", card.sentence);
 
       const imgEl = document.getElementById("cardImage");
       imgEl.src = `https://picsum.photos/seed/${encodeURIComponent(card.word)}/600/220`;
@@ -618,7 +722,7 @@
       const text = document.getElementById(textId);
       if (value && value.trim()) {
         box.classList.remove("hidden");
-        text.innerText = value;
+        text.innerText = value.trim();
       } else {
         box.classList.add("hidden");
       }
@@ -630,7 +734,7 @@
       if (isFlipped) {
         el.classList.add("rotate-y-180");
         if (queue.length > 0) {
-          setTimeout(() => pronounce(queue[0].sentenceEn || queue[0].word), 250);
+          setTimeout(() => pronounce(queue[0].sentence || queue[0].word), 250);
         }
       } else {
         el.classList.remove("rotate-y-180");
@@ -687,7 +791,12 @@
       window.speechSynthesis.cancel();
       window.speechSynthesis.resume();
 
-      const cleanText = text.replace(/[\u4e00-\u9fa5]/g, '').replace(/[\(\)\[\]（）]/g, '').trim();
+      // 純淨英文過濾 (消除中文例句翻譯干擾發音)
+      const cleanText = text.replace(/（[^）]*[\u4e00-\u9fa5]+[^）]*）/g, '')
+                            .replace(/\([^)]*[\u4e00-\u9fa5]+[^)]*\)/g, '')
+                            .replace(/[\u4e00-\u9fa5]/g, '')
+                            .replace(/^[【\[\(]?(例句|example)[】\]\)]?[:：]?/i, '')
+                            .trim();
       if (!cleanText) return;
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
@@ -710,7 +819,7 @@
 
       document.getElementById("btnPronounceBack").onclick = (e) => {
         e.stopPropagation();
-        if (queue.length > 0) pronounce(queue[0].sentenceEn || queue[0].word);
+        if (queue.length > 0) pronounce(queue[0].sentence || queue[0].word);
       };
 
       document.getElementById("btnOpenScopeModal").onclick = openScopeModal;
@@ -735,7 +844,7 @@
         } else if (e.code === "Enter") {
           e.preventDefault();
           if (queue.length > 0) {
-            pronounce(isFlipped ? (queue[0].sentenceEn || queue[0].word) : queue[0].word);
+            pronounce(isFlipped ? (queue[0].sentence || queue[0].word) : queue[0].word);
           }
         } else if (["1", "2", "3", "4"].includes(e.key)) {
           const map = { "1": "Again", "2": "Hard", "3": "Good", "4": "Easy" };
